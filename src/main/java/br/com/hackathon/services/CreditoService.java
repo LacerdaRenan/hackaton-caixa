@@ -1,10 +1,8 @@
 package br.com.hackathon.services;
 
-import br.com.hackathon.dao.ProdutoDao;
 import br.com.hackathon.dto.*;
 import br.com.hackathon.enums.EnumTipoFinanciamento;
 import br.com.hackathon.model.Produto;
-import br.com.hackathon.resources.SimuladorResource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -19,29 +17,64 @@ import java.util.List;
 @ApplicationScoped
 public class CreditoService {
 
+    @Inject
+    ProdutoService produtoService;
+
     public RespostaSimulacaoDto novaSimulacao(CriarSimulacaoDto criarSimulacaoDto) {
 
-        ProdutoDto mockProdutoDto = ProdutoDto.builder()
-                .taxaJuros(new BigDecimal("0.0179"))
-                .build();
+        ProdutoDto produtoDto = definirProduto(criarSimulacaoDto);
+        log.info("produto selecionado : codigo {} nome {}", produtoDto.getCodigoProduto(), produtoDto.getNomeProduto());
 
-        SimulacaoDto simulacaoSac = calcularFinanciamentoSac(criarSimulacaoDto, mockProdutoDto);
-        SimulacaoDto simulacaoPrice = calcularFinanciamentoPrice(criarSimulacaoDto, mockProdutoDto);
+        SimulacaoDto simulacaoSac = calcularFinanciamentoSac(criarSimulacaoDto, produtoDto);
+        SimulacaoDto simulacaoPrice = calcularFinanciamentoPrice(criarSimulacaoDto, produtoDto);
 
         List<SimulacaoDto> resultadoSimulacao = new ArrayList<>();
         resultadoSimulacao.add(simulacaoSac);
         resultadoSimulacao.add(simulacaoPrice);
 
         return RespostaSimulacaoDto.builder()
+                .codigoProduto(produtoDto.getCodigoProduto())
+                .descricaoProduto(produtoDto.getNomeProduto())
+                .taxaJuros(produtoDto.getTaxaJuros().setScale(4, RoundingMode.HALF_UP))
                 .resultadoSimulacao(resultadoSimulacao)
+                .build();
+    }
+
+    private ProdutoDto definirProduto(CriarSimulacaoDto criarSimulacaoDto) {
+
+        Short numeroParcelas = criarSimulacaoDto.getPrazo();
+        BigDecimal valor = criarSimulacaoDto.getValorDesejado();
+
+        List<Produto> produtos = produtoService.listarProdutos();
+
+        for (Produto p : produtos) {
+
+            Short numeroMinimoMeses = p.getNumeroMinimoMeses() == null ? 1 : p.getNumeroMinimoMeses();
+            Short numeroMaximoMeses = p.getNumeroMaximoMeses() == null ? numeroParcelas : p.getNumeroMaximoMeses();
+            BigDecimal valorMinimo = p.getValorMinimo() == null ? BigDecimal.ONE : p.getValorMinimo();
+            BigDecimal valorMaximo = p.getValorMaximo() == null ? valor : p.getValorMaximo();
+
+            if (numeroParcelas.compareTo(numeroMinimoMeses) >= 0
+                    && numeroParcelas.compareTo(numeroMaximoMeses) <= 0
+                    && valor.compareTo(valorMinimo) >= 0
+                    && valor.compareTo(valorMaximo) <= 0)
+                return ProdutoDto.builder()
+                        .codigoProduto(p.getCodigoProduto())
+                        .nomeProduto(p.getNomeProduto())
+                        .taxaJuros(p.getTaxaJuros())
+                        .build();
+        }
+
+        log.info("Nenhum produto encontrado para os parametros fornecidos");
+
+        return ProdutoDto.builder()
                 .taxaJuros(new BigDecimal("0.0179"))
                 .build();
     }
 
-
     private SimulacaoDto calcularFinanciamentoSac(CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto) {
 
-        Integer numeroParcelas = criarSimulacaoDto.getPrazo();
+        Short numeroParcelas = criarSimulacaoDto.getPrazo();
         BigDecimal valor = criarSimulacaoDto.getValorDesejado();
         BigDecimal taxaJuros = produtoDto.getTaxaJuros();
 
@@ -53,7 +86,7 @@ public class CreditoService {
                 .build();
     }
 
-    private List<ParcelaDto> calcularDadosParcelaSac(BigDecimal valor, Integer numeroParcelas, BigDecimal taxaJuros) {
+    private List<ParcelaDto> calcularDadosParcelaSac(BigDecimal valor, Short numeroParcelas, BigDecimal taxaJuros) {
         MathContext mathContext = new MathContext(10, RoundingMode.HALF_UP);
 
         BigDecimal amortizacao = valor.divide(BigDecimal.valueOf(numeroParcelas), mathContext);
@@ -86,7 +119,7 @@ public class CreditoService {
 
     private SimulacaoDto calcularFinanciamentoPrice(CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto) {
 
-        Integer numeroParcelas = criarSimulacaoDto.getPrazo();
+        Short numeroParcelas = criarSimulacaoDto.getPrazo();
         BigDecimal valor = criarSimulacaoDto.getValorDesejado();
         BigDecimal taxaJuros = produtoDto.getTaxaJuros();
 
@@ -98,7 +131,7 @@ public class CreditoService {
                 .build();
     }
 
-    private BigDecimal calularParcelaBrutaPrice(BigDecimal valor, Integer numeroParcelas, BigDecimal taxaJuros) {
+    private BigDecimal calularParcelaBrutaPrice(BigDecimal valor, Short numeroParcelas, BigDecimal taxaJuros) {
         MathContext mathContext = new MathContext(10, RoundingMode.HALF_UP);
 
         BigDecimal potenciaTaxaMaisUm = BigDecimal.ONE.add(taxaJuros).pow(numeroParcelas);
@@ -109,7 +142,7 @@ public class CreditoService {
         return valor.divide(fator, mathContext);
     }
 
-    private List<ParcelaDto> calcularDadosParcelaPrice(BigDecimal valor, Integer numeroParcelas, BigDecimal taxaJuros) {
+    private List<ParcelaDto> calcularDadosParcelaPrice(BigDecimal valor, Short numeroParcelas, BigDecimal taxaJuros) {
         BigDecimal parcelaBrutaPrice = calularParcelaBrutaPrice(valor, numeroParcelas, taxaJuros);
 
         BigDecimal jurosPrimeiraParcela = valor.multiply(taxaJuros);

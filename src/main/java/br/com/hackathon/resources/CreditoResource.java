@@ -15,9 +15,6 @@ public class CreditoResource {
     @Inject
     CreditoService creditoService;
 
-    @Inject
-    ProdutoService produtoService;
-
     @POST
     @Path("simular")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -27,13 +24,5 @@ public class CreditoResource {
         return Response.status(Response.Status.CREATED)
                 .entity(simulacao)
                 .build();
-    }
-
-    @GET
-    @Path("produtos")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response listarProdutos() {
-        var produtos = produtoService.listarProdutos();
-        return Response.ok(produtos).build();
     }
 }
