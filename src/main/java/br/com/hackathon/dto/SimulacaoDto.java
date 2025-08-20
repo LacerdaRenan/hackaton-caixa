@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 @Builder
 public class SimulacaoDto {
-    private EnumTipoFinanciamento tipo;
+    private String tipo;
     private List<ParcelaDto> parcelas;
 }
