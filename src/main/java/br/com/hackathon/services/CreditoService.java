@@ -25,13 +25,63 @@ public class CreditoService {
                 .taxaJuros(new BigDecimal("0.0179"))
                 .build();
 
+        SimulacaoDto simulacaoSac = calcularFinanciamentoSac(criarSimulacaoDto, mockProdutoDto);
         SimulacaoDto simulacaoPrice = calcularFinanciamentoPrice(criarSimulacaoDto, mockProdutoDto);
+
         List<SimulacaoDto> resultadoSimulacao = new ArrayList<>();
+        resultadoSimulacao.add(simulacaoSac);
         resultadoSimulacao.add(simulacaoPrice);
 
         return RespostaSimulacaoDto.builder()
                 .resultadoSimulacao(resultadoSimulacao)
+                .taxaJuros(new BigDecimal("0.0179"))
                 .build();
+    }
+
+
+    private SimulacaoDto calcularFinanciamentoSac(CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto) {
+
+        Integer numeroParcelas = criarSimulacaoDto.getPrazo();
+        BigDecimal valor = criarSimulacaoDto.getValorDesejado();
+        BigDecimal taxaJuros = produtoDto.getTaxaJuros();
+
+        List<ParcelaDto> parcelaDtoList = calcularDadosParcelaSac(valor, numeroParcelas, taxaJuros);
+
+        return SimulacaoDto.builder()
+                .tipo(EnumTipoFinanciamento.SAC.name())
+                .parcelas(parcelaDtoList)
+                .build();
+    }
+
+    private List<ParcelaDto> calcularDadosParcelaSac(BigDecimal valor, Integer numeroParcelas, BigDecimal taxaJuros) {
+        MathContext mathContext = new MathContext(10, RoundingMode.HALF_UP);
+
+        BigDecimal amortizacao = valor.divide(BigDecimal.valueOf(numeroParcelas), mathContext);
+        BigDecimal jurosPrimeiraParcela = valor.multiply(taxaJuros);
+        BigDecimal primeiraParcela = amortizacao.add(jurosPrimeiraParcela);
+        BigDecimal constanteReducao = amortizacao.multiply(taxaJuros);
+
+        List<ParcelaDto> parcelaDtoList = new ArrayList<>();
+
+        for (int i=1; i<=numeroParcelas; i++) {
+
+            BigDecimal parcelaSac = calcularValorParcelaSac(primeiraParcela, constanteReducao, i);
+            BigDecimal jurosParcela = parcelaSac.subtract(amortizacao);
+
+            parcelaDtoList.add(ParcelaDto.builder()
+                    .numero(i)
+                    .valorAmortizacao(amortizacao.setScale(2, RoundingMode.HALF_UP))
+                    .valorJuros(jurosParcela.setScale(2, RoundingMode.HALF_UP))
+                    .valorPrestacao(parcelaSac.setScale(2, RoundingMode.HALF_UP))
+                    .build());
+        }
+
+        return parcelaDtoList;
+    }
+
+    private BigDecimal calcularValorParcelaSac(BigDecimal primeiraParcela, BigDecimal constanteReducao, Integer parcelaAtual) {
+        BigDecimal diferenca = (BigDecimal.valueOf(parcelaAtual).subtract(BigDecimal.ONE)).multiply(constanteReducao);
+        return primeiraParcela.subtract(diferenca);
     }
 
     private SimulacaoDto calcularFinanciamentoPrice(CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto) {
