@@ -2,7 +2,7 @@ package br.com.hackathon.services;
 
 import br.com.hackathon.dto.*;
 import br.com.hackathon.enums.EnumTipoFinanciamento;
-import br.com.hackathon.model.Produto;
+import br.com.hackathon.model.sqlserver.Produto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +25,8 @@ public class CreditoService {
         ProdutoDto produtoDto = definirProduto(criarSimulacaoDto);
         log.info("produto selecionado : codigo {} nome {}", produtoDto.getCodigoProduto(), produtoDto.getNomeProduto());
 
-        SimulacaoDto simulacaoSac = calcularFinanciamentoSac(criarSimulacaoDto, produtoDto);
-        SimulacaoDto simulacaoPrice = calcularFinanciamentoPrice(criarSimulacaoDto, produtoDto);
+        SimulacaoDto simulacaoSac = calcularFinanciamento(EnumTipoFinanciamento.SAC, criarSimulacaoDto, produtoDto);
+        SimulacaoDto simulacaoPrice = calcularFinanciamento(EnumTipoFinanciamento.PRICE, criarSimulacaoDto, produtoDto);
 
         List<SimulacaoDto> resultadoSimulacao = new ArrayList<>();
         resultadoSimulacao.add(simulacaoSac);
@@ -72,16 +72,18 @@ public class CreditoService {
                 .build();
     }
 
-    private SimulacaoDto calcularFinanciamentoSac(CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto) {
+    private SimulacaoDto calcularFinanciamento(EnumTipoFinanciamento tipoFinanciamento, CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto) {
 
         Short numeroParcelas = criarSimulacaoDto.getPrazo();
         BigDecimal valor = criarSimulacaoDto.getValorDesejado();
         BigDecimal taxaJuros = produtoDto.getTaxaJuros();
 
-        List<ParcelaDto> parcelaDtoList = calcularDadosParcelaSac(valor, numeroParcelas, taxaJuros);
+        List<ParcelaDto> parcelaDtoList = EnumTipoFinanciamento.SAC.equals(tipoFinanciamento)
+                ? calcularDadosParcelaSac(valor, numeroParcelas, taxaJuros)
+                : calcularDadosParcelaPrice(valor, numeroParcelas, taxaJuros);
 
         return SimulacaoDto.builder()
-                .tipo(EnumTipoFinanciamento.SAC.name())
+                .tipo(tipoFinanciamento.name())
                 .parcelas(parcelaDtoList)
                 .build();
     }
@@ -115,20 +117,6 @@ public class CreditoService {
     private BigDecimal calcularValorParcelaSac(BigDecimal primeiraParcela, BigDecimal constanteReducao, Integer parcelaAtual) {
         BigDecimal diferenca = (BigDecimal.valueOf(parcelaAtual).subtract(BigDecimal.ONE)).multiply(constanteReducao);
         return primeiraParcela.subtract(diferenca);
-    }
-
-    private SimulacaoDto calcularFinanciamentoPrice(CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto) {
-
-        Short numeroParcelas = criarSimulacaoDto.getPrazo();
-        BigDecimal valor = criarSimulacaoDto.getValorDesejado();
-        BigDecimal taxaJuros = produtoDto.getTaxaJuros();
-
-        List<ParcelaDto> parcelaDtoList = calcularDadosParcelaPrice(valor, numeroParcelas, taxaJuros);
-
-        return SimulacaoDto.builder()
-                .tipo(EnumTipoFinanciamento.PRICE.name())
-                .parcelas(parcelaDtoList)
-                .build();
     }
 
     private BigDecimal calularParcelaBrutaPrice(BigDecimal valor, Short numeroParcelas, BigDecimal taxaJuros) {

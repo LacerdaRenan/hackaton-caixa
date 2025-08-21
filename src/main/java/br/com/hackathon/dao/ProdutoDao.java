@@ -1,18 +1,19 @@
 package br.com.hackathon.dao;
 
-import br.com.hackathon.model.Produto;
+import br.com.hackathon.model.sqlserver.Produto;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
+
+import io.quarkus.hibernate.orm.PersistenceUnit;
 
 import java.util.List;
 
 @ApplicationScoped
 public class ProdutoDao {
 
-    @Inject
+    @PersistenceUnit("sqlserver")
     EntityManager em;
 
     public List<Produto> listAll() {
