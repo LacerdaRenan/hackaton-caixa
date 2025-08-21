@@ -23,7 +23,12 @@ public class CreditoService {
     @Inject
     SimulacaoService simulacaoService;
 
+    @Inject
+    TelemetriaService telemetriaService;
+
     public RespostaSimulacaoDto novaSimulacao(CriarSimulacaoDto criarSimulacaoDto) {
+
+        Long inicioProcessamentoTelemetria = System.nanoTime();
 
         ProdutoDto produtoDto = definirProduto(criarSimulacaoDto);
         log.info("produto selecionado : codigo {} nome {}", produtoDto.getCodigoProduto(), produtoDto.getNomeProduto());
@@ -36,6 +41,11 @@ public class CreditoService {
         resultadoSimulacao.add(simulacaoPrice);
 
         simulacaoService.salvarSimulacao(criarSimulacaoDto, simulacaoSac);
+
+        Long fimProcessamentoTelemetria = System.nanoTime();
+        Long duracaoProcessamentoTelemetria = (fimProcessamentoTelemetria - inicioProcessamentoTelemetria) / 1_000_000;
+
+        telemetriaService.registrarDadosApi("Simulacao Credito", duracaoProcessamentoTelemetria, (short) 201);
 
         return RespostaSimulacaoDto.builder()
                 .codigoProduto(produtoDto.getCodigoProduto())
