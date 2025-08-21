@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -34,5 +34,5 @@ public class Simulacao {
 
     @Column(name = "TS_DT_CRIACAO")
     @CreationTimestamp
-    private LocalDateTime dataCriacao;
+    private LocalDate dataCriacao;
 }

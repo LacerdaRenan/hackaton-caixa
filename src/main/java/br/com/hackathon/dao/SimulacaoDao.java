@@ -14,7 +14,7 @@ public class SimulacaoDao {
     @PersistenceUnit("h2")
     EntityManager em;
 
-    public List<Simulacao> listAll(Short pagina, Integer tamanhoPagina) {
+    public List<Simulacao> listAllPaginado(Short pagina, Integer tamanhoPagina) {
         TypedQuery<Simulacao> query = em.createQuery("FROM Simulacao ORDER BY idSimulacao", Simulacao.class);
         query.setFirstResult((pagina-1)*tamanhoPagina);
         query.setMaxResults(tamanhoPagina);
