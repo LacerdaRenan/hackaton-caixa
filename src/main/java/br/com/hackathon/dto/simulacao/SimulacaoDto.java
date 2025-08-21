@@ -1,6 +1,5 @@
-package br.com.hackathon.dto;
+package br.com.hackathon.dto.simulacao;
 
-import br.com.hackathon.enums.EnumTipoFinanciamento;
 import lombok.Builder;
 import lombok.Data;
 

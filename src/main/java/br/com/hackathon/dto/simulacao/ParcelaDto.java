@@ -1,4 +1,4 @@
-package br.com.hackathon.dto;
+package br.com.hackathon.dto.simulacao;
 
 import lombok.Builder;
 import lombok.Data;
