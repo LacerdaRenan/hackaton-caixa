@@ -3,9 +3,7 @@ package br.com.hackathon.resources;
 import br.com.hackathon.services.SimulacaoService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -18,8 +16,10 @@ public class SimulacaoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response listarTodasSimulacoes() {
-        var simulacoes = simulacaoService.listarSimulacoes();
+    public Response listarTodasSimulacoes(
+            @QueryParam("pagina") @DefaultValue("1") short pagina,
+            @QueryParam("tamanhoPagina") @DefaultValue("5") int tamanhoPagina) {
+        var simulacoes = simulacaoService.listarSimulacoes(pagina, tamanhoPagina);
         return Response.ok(simulacoes).build();
     }
 }

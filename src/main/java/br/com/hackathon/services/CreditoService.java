@@ -20,6 +20,9 @@ public class CreditoService {
     @Inject
     ProdutoService produtoService;
 
+    @Inject
+    SimulacaoService simulacaoService;
+
     public RespostaSimulacaoDto novaSimulacao(CriarSimulacaoDto criarSimulacaoDto) {
 
         ProdutoDto produtoDto = definirProduto(criarSimulacaoDto);
@@ -31,6 +34,8 @@ public class CreditoService {
         List<SimulacaoDto> resultadoSimulacao = new ArrayList<>();
         resultadoSimulacao.add(simulacaoSac);
         resultadoSimulacao.add(simulacaoPrice);
+
+        simulacaoService.salvarSimulacao(criarSimulacaoDto, simulacaoSac);
 
         return RespostaSimulacaoDto.builder()
                 .codigoProduto(produtoDto.getCodigoProduto())
