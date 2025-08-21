@@ -1,6 +1,6 @@
 package br.com.hackathon.resources;
 
-import br.com.hackathon.services.ProdutoService;
+import br.com.hackathon.services.SimulacaoService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -9,17 +9,17 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/api/v1/produto")
+@Path("/api/v1/simulacao")
 @RequestScoped
-public class ProdutoResource {
+public class SimulacaoResource {
 
     @Inject
-    ProdutoService produtoService;
+    SimulacaoService simulacaoService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response listarProdutos() {
-        var produtos = produtoService.listarProdutos();
-        return Response.ok(produtos).build();
+    public Response listarTodasSimulacoes() {
+        var simulacoes = simulacaoService.listarSimulacoes();
+        return Response.ok(simulacoes).build();
     }
 }

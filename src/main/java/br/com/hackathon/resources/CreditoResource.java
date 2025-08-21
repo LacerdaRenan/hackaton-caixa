@@ -2,7 +2,7 @@ package br.com.hackathon.resources;
 
 import br.com.hackathon.dto.CriarSimulacaoDto;
 import br.com.hackathon.services.CreditoService;
-import br.com.hackathon.services.ProdutoService;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path("/api/v1/credito")
+@RequestScoped
 public class CreditoResource {
 
     @Inject
