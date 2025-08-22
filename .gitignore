@@ -45,4 +45,4 @@ nb-configuration.xml
 .certs/
 
 # h2 database
-/data/
+/h2/
