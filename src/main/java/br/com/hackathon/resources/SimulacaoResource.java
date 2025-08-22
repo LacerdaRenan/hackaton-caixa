@@ -7,6 +7,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDate;
+
 @Path("/api/v1/simulacao")
 @RequestScoped
 public class SimulacaoResource {
@@ -21,5 +23,14 @@ public class SimulacaoResource {
             @QueryParam("tamanhoPagina") @DefaultValue("5") int tamanhoPagina) {
         var simulacoes = simulacaoService.listarSimulacoes(pagina, tamanhoPagina);
         return Response.ok(simulacoes).build();
+    }
+
+    @GET
+    @Path("/produto/{id}")
+    public Response buscarVolumeSimuladoPorProdutoId(
+            @PathParam("id") Integer codigoProduto,
+            @QueryParam("data") LocalDate data) {
+        var volumes = simulacaoService.calcularVolumeSimuladoProduto(codigoProduto, data);
+        return Response.ok(volumes).build();
     }
 }

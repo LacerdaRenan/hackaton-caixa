@@ -29,6 +29,9 @@ public class Simulacao {
     @Column(name = "NU_MESES")
     private Short prazo;
 
+    @Column(name = "CO_PRODUTO")
+    private Integer codigoProduto;
+
     @Column(name = "VR_TOTAL_PARCELAS")
     private BigDecimal valorTotalParcelas;
 

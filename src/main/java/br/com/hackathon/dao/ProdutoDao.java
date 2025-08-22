@@ -3,7 +3,6 @@ package br.com.hackathon.dao;
 import br.com.hackathon.model.sqlserver.Produto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 
 import io.quarkus.hibernate.orm.PersistenceUnit;
@@ -20,14 +19,10 @@ public class ProdutoDao {
         return em.createQuery("FROM Produto", Produto.class).getResultList();
     }
 
-    public Produto getById(Integer id) {
-        TypedQuery<Produto> query = em.createQuery("SELECT p.* FROM Produto WHERE p.CO_PRODUTO = :idProduto", Produto.class);
-        query.setParameter("idProduto", id);
+    public Produto getById(Integer codigoProduto) {
+        TypedQuery<Produto> query = em.createQuery("SELECT p FROM Produto p WHERE p.codigoProduto = :codigoProduto", Produto.class);
+        query.setParameter("codigoProduto", codigoProduto);
 
-        try {
-            return query.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        return query.getSingleResult();
     }
 }

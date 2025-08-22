@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @ApplicationScoped
@@ -18,6 +19,14 @@ public class SimulacaoDao {
         TypedQuery<Simulacao> query = em.createQuery("FROM Simulacao ORDER BY idSimulacao", Simulacao.class);
         query.setFirstResult((pagina-1)*tamanhoPagina);
         query.setMaxResults(tamanhoPagina);
+
+        return query.getResultList();
+    }
+
+    public List<Simulacao> listAllByCodigoProduto(Integer codigoProduto, LocalDate data) {
+        TypedQuery<Simulacao> query = em.createQuery("SELECT s FROM Simulacao s WHERE s.codigoProduto = :codigoProduto AND s.dataCriacao = :data", Simulacao.class);
+        query.setParameter("codigoProduto", codigoProduto);
+        query.setParameter("data", data);
 
         return query.getResultList();
     }

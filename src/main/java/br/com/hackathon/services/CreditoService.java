@@ -1,6 +1,9 @@
 package br.com.hackathon.services;
 
 import br.com.hackathon.dto.*;
+import br.com.hackathon.dto.simulacao.ParcelaDto;
+import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
+import br.com.hackathon.dto.simulacao.SimulacaoDto;
 import br.com.hackathon.enums.EnumTipoFinanciamento;
 import br.com.hackathon.model.sqlserver.Produto;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -40,7 +43,7 @@ public class CreditoService {
         resultadoSimulacao.add(simulacaoSac);
         resultadoSimulacao.add(simulacaoPrice);
 
-        simulacaoService.salvarSimulacao(criarSimulacaoDto, simulacaoSac);
+        simulacaoService.salvarSimulacao(criarSimulacaoDto, simulacaoSac, produtoDto);
 
         Long fimProcessamentoTelemetria = System.nanoTime();
         Long duracaoProcessamentoTelemetria = (fimProcessamentoTelemetria - inicioProcessamentoTelemetria) / 1_000_000;
