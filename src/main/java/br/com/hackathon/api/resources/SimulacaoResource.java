@@ -1,8 +1,10 @@
-package br.com.hackathon.resources;
+package br.com.hackathon.api.resources;
 
+import br.com.hackathon.dto.CriarSimulacaoDto;
 import br.com.hackathon.services.SimulacaoService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -15,6 +17,16 @@ public class SimulacaoResource {
 
     @Inject
     SimulacaoService simulacaoService;
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response realizarSimulacaoCredito(@Valid CriarSimulacaoDto criarSimulacaoDto) {
+        var simulacao = simulacaoService.criarSimulacao(criarSimulacaoDto);
+        return Response.status(Response.Status.CREATED)
+                .entity(simulacao)
+                .build();
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

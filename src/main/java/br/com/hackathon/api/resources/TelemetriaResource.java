@@ -1,4 +1,4 @@
-package br.com.hackathon.resources;
+package br.com.hackathon.api.resources;
 
 import br.com.hackathon.services.TelemetriaService;
 import jakarta.enterprise.context.RequestScoped;

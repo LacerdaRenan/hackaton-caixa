@@ -1,13 +1,17 @@
 package br.com.hackathon.services;
 
 import br.com.hackathon.dao.ProdutoDao;
+import br.com.hackathon.dto.CriarSimulacaoDto;
 import br.com.hackathon.dto.ProdutoDto;
+import br.com.hackathon.exceptions.ProductNotFoundException;
+import br.com.hackathon.mapper.ProdutoMapper;
 import br.com.hackathon.model.sqlserver.Produto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -19,6 +23,9 @@ public class ProdutoService {
 
     @Inject
     TelemetriaService telemetriaService;
+
+    @Inject
+    ProdutoMapper produtoMapper;
 
     public List<Produto> listarProdutos() {
         try {
@@ -49,5 +56,17 @@ public class ProdutoService {
                     .build();
 
         return null;
+    }
+
+    public ProdutoDto buscarProdutoPorParametro(CriarSimulacaoDto criarSimulacaoDto) {
+        List<Produto> produtos = produtoDao.buscarProdutoPorParametros(criarSimulacaoDto);
+
+        if (produtos.isEmpty())
+            throw new ProductNotFoundException("Nenhum produto disponivel para os dados informados");
+
+        return produtos.stream()
+                .min(Comparator.comparing(Produto::getTaxaJuros))
+                .map(produtoMapper::toDto)
+                .orElse(produtoMapper.toDto(produtos.getFirst()));
     }
 }

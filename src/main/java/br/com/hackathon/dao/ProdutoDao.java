@@ -1,5 +1,6 @@
 package br.com.hackathon.dao;
 
+import br.com.hackathon.dto.CriarSimulacaoDto;
 import br.com.hackathon.model.sqlserver.Produto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -24,5 +25,22 @@ public class ProdutoDao {
         query.setParameter("codigoProduto", codigoProduto);
 
         return query.getSingleResult();
+    }
+
+    public List<Produto> buscarProdutoPorParametros(CriarSimulacaoDto criarSimulacaoDto) {
+        String sql = """
+                SELECT p
+                FROM Produto p
+                WHERE   (:prazoDesejado >= p.numeroMinimoMeses OR p.numeroMinimoMeses IS NULL)
+                AND     (:prazoDesejado <= p.numeroMaximoMeses OR p.numeroMaximoMeses IS NULL)
+                AND     (:valorDesejado >= p.valorMinimo OR p.valorMinimo IS NULL)
+                AND     (:valorDesejado <= p.valorMaximo OR p.valorMaximo IS NULL)
+                """;
+
+        TypedQuery<Produto> query = em.createQuery(sql, Produto.class);
+        query.setParameter("prazoDesejado", criarSimulacaoDto.getPrazo());
+        query.setParameter("valorDesejado", criarSimulacaoDto.getValorDesejado());
+
+        return query.getResultList();
     }
 }

@@ -1,11 +1,14 @@
 package br.com.hackathon.services;
 
+import br.com.hackathon.api.payload.PaginaPayload;
 import br.com.hackathon.dao.SimulacaoDao;
 import br.com.hackathon.dto.*;
 import br.com.hackathon.dto.simulacao.ParcelaDto;
+import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
 import br.com.hackathon.dto.simulacao.SimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.RespostaVolumeProdutoSimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.VolumeProdutoSimulacaoDto;
+import br.com.hackathon.enums.EnumTipoFinanciamento;
 import br.com.hackathon.model.h2.Simulacao;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +36,124 @@ public class SimulacaoService {
     @Inject
     ProdutoService produtoService;
 
-    public PaginaConsultaDto<Simulacao> listarSimulacoes(Short pagina, Integer tamanhoPagina) {
+    public RespostaSimulacaoDto criarSimulacao(CriarSimulacaoDto criarSimulacaoDto) {
+
+        log.info("Dados simulacao {}", criarSimulacaoDto);
+
+        Long inicioProcessamentoTelemetria = System.nanoTime();
+
+        ProdutoDto produtoDto = produtoService.buscarProdutoPorParametro(criarSimulacaoDto);
+        log.info("produto selecionado: {}", produtoDto);
+
+        SimulacaoDto simulacaoSac = calcularFinanciamento(EnumTipoFinanciamento.SAC, criarSimulacaoDto, produtoDto);
+        SimulacaoDto simulacaoPrice = calcularFinanciamento(EnumTipoFinanciamento.PRICE, criarSimulacaoDto, produtoDto);
+
+        List<SimulacaoDto> resultadoSimulacao = new ArrayList<>();
+        resultadoSimulacao.add(simulacaoSac);
+        resultadoSimulacao.add(simulacaoPrice);
+
+        salvarSimulacao(criarSimulacaoDto, simulacaoSac, produtoDto);
+
+        Long fimProcessamentoTelemetria = System.nanoTime();
+        Long duracaoProcessamentoTelemetria = (fimProcessamentoTelemetria - inicioProcessamentoTelemetria) / 1_000_000;
+
+        telemetriaService.registrarDadosApi("Simulacao Credito", duracaoProcessamentoTelemetria, (short) 201);
+
+        return RespostaSimulacaoDto.builder()
+                .codigoProduto(produtoDto.getCodigoProduto())
+                .descricaoProduto(produtoDto.getNomeProduto())
+                .taxaJuros(produtoDto.getTaxaJuros().setScale(4, RoundingMode.HALF_UP))
+                .resultadoSimulacao(resultadoSimulacao)
+                .build();
+    }
+
+    private SimulacaoDto calcularFinanciamento(EnumTipoFinanciamento tipoFinanciamento, CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto) {
+
+        Short numeroParcelas = criarSimulacaoDto.getPrazo();
+        BigDecimal valor = criarSimulacaoDto.getValorDesejado();
+        BigDecimal taxaJuros = produtoDto.getTaxaJuros();
+
+        List<ParcelaDto> parcelaDtoList = EnumTipoFinanciamento.SAC.equals(tipoFinanciamento)
+                ? calcularDadosParcelaSac(valor, numeroParcelas, taxaJuros)
+                : calcularDadosParcelaPrice(valor, numeroParcelas, taxaJuros);
+
+        return SimulacaoDto.builder()
+                .tipo(tipoFinanciamento.name())
+                .parcelas(parcelaDtoList)
+                .build();
+    }
+
+    private List<ParcelaDto> calcularDadosParcelaSac(BigDecimal valor, Short numeroParcelas, BigDecimal taxaJuros) {
+        MathContext mathContext = new MathContext(10, RoundingMode.HALF_UP);
+
+        BigDecimal amortizacao = valor.divide(BigDecimal.valueOf(numeroParcelas), mathContext);
+        BigDecimal jurosPrimeiraParcela = valor.multiply(taxaJuros);
+        BigDecimal primeiraParcela = amortizacao.add(jurosPrimeiraParcela);
+        BigDecimal constanteReducao = amortizacao.multiply(taxaJuros);
+
+        List<ParcelaDto> parcelaDtoList = new ArrayList<>();
+
+        for (int i=1; i<=numeroParcelas; i++) {
+
+            BigDecimal parcelaSac = calcularValorParcelaSac(primeiraParcela, constanteReducao, i);
+            BigDecimal jurosParcela = parcelaSac.subtract(amortizacao);
+
+            parcelaDtoList.add(ParcelaDto.builder()
+                    .numero(i)
+                    .valorAmortizacao(amortizacao.setScale(2, RoundingMode.HALF_UP))
+                    .valorJuros(jurosParcela.setScale(2, RoundingMode.HALF_UP))
+                    .valorPrestacao(parcelaSac.setScale(2, RoundingMode.HALF_UP))
+                    .build());
+        }
+
+        return parcelaDtoList;
+    }
+
+    private BigDecimal calcularValorParcelaSac(BigDecimal primeiraParcela, BigDecimal constanteReducao, Integer parcelaAtual) {
+        BigDecimal diferenca = (BigDecimal.valueOf(parcelaAtual).subtract(BigDecimal.ONE)).multiply(constanteReducao);
+        return primeiraParcela.subtract(diferenca);
+    }
+
+    private List<ParcelaDto> calcularDadosParcelaPrice(BigDecimal valor, Short numeroParcelas, BigDecimal taxaJuros) {
+        BigDecimal parcelaBrutaPrice = calularParcelaBrutaPrice(valor, numeroParcelas, taxaJuros);
+
+        BigDecimal jurosPrimeiraParcela = valor.multiply(taxaJuros);
+        BigDecimal amortizacaoPrimeiraParcela = parcelaBrutaPrice.subtract(jurosPrimeiraParcela);
+
+        List<ParcelaDto> parcelasDtoPrice = new ArrayList<>();
+
+        for(int i=1; i<=numeroParcelas; i++) {
+
+            BigDecimal amortizacaParcela = calculaValorAmortizacaoParcelaPrice(amortizacaoPrimeiraParcela, taxaJuros, i);
+            BigDecimal jurosParcela = parcelaBrutaPrice.subtract(amortizacaParcela);
+
+            parcelasDtoPrice.add(ParcelaDto.builder()
+                    .numero(i)
+                    .valorAmortizacao(amortizacaParcela.setScale(2, RoundingMode.HALF_UP))
+                    .valorJuros(jurosParcela.setScale(2, RoundingMode.HALF_UP))
+                    .valorPrestacao(parcelaBrutaPrice.setScale(2, RoundingMode.HALF_UP))
+                    .build());
+        }
+
+        return parcelasDtoPrice;
+    }
+
+    private BigDecimal calularParcelaBrutaPrice(BigDecimal valor, Short numeroParcelas, BigDecimal taxaJuros) {
+        MathContext mathContext = new MathContext(10, RoundingMode.HALF_UP);
+
+        BigDecimal potenciaTaxaMaisUm = BigDecimal.ONE.add(taxaJuros).pow(numeroParcelas);
+        BigDecimal numeradorFator = potenciaTaxaMaisUm.subtract(BigDecimal.ONE);
+        BigDecimal denominadorFator = potenciaTaxaMaisUm.multiply(taxaJuros);
+        BigDecimal fator = numeradorFator.divide(denominadorFator, mathContext);
+
+        return valor.divide(fator, mathContext);
+    }
+
+    private BigDecimal calculaValorAmortizacaoParcelaPrice(BigDecimal amortizacaoPrimeiraParcela, BigDecimal taxaJuros, Integer parcelaAtual) {
+        return BigDecimal.ONE.add(taxaJuros).pow(parcelaAtual-1).multiply(amortizacaoPrimeiraParcela);
+    }
+
+    public PaginaPayload<Simulacao> listarSimulacoes(Short pagina, Integer tamanhoPagina) {
         try {
 
             Long inicioProcessamentoTelemetria = System.nanoTime();
@@ -40,7 +161,7 @@ public class SimulacaoService {
             List<Simulacao> simulacoesPaginadas = simulacaoDao.listAllPaginado(pagina, tamanhoPagina);
             Long totalRegistros = simulacaoDao.contarTotalRegistros();
 
-            PaginaConsultaDto<Simulacao> consultaPaginada = new PaginaConsultaDto<>();
+            PaginaPayload<Simulacao> consultaPaginada = new PaginaPayload<>();
 
             consultaPaginada.setPagina(pagina);
             consultaPaginada.setQtdRegistros(totalRegistros);
@@ -56,7 +177,7 @@ public class SimulacaoService {
 
         } catch (Exception e) {
             log.info("erro ao buscar simulacoes {}", e.getMessage());
-            return new PaginaConsultaDto<>();
+            return new PaginaPayload<>();
         }
     }
 
