@@ -1,7 +1,7 @@
 package br.com.hackathon.services;
 
 import br.com.hackathon.dao.ProdutoDao;
-import br.com.hackathon.dto.CriarSimulacaoDto;
+import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
 import br.com.hackathon.dto.ProdutoDto;
 import br.com.hackathon.exceptions.ProductNotFoundException;
 import br.com.hackathon.mapper.ProdutoMapper;

@@ -3,6 +3,7 @@ package br.com.hackathon.services;
 import br.com.hackathon.api.payload.PaginaPayload;
 import br.com.hackathon.dao.SimulacaoDao;
 import br.com.hackathon.dto.*;
+import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
 import br.com.hackathon.dto.simulacao.ParcelaDto;
 import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
 import br.com.hackathon.dto.simulacao.SimulacaoDto;

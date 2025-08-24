@@ -1,6 +1,6 @@
 package br.com.hackathon.dao;
 
-import br.com.hackathon.dto.CriarSimulacaoDto;
+import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
 import br.com.hackathon.model.sqlserver.Produto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;

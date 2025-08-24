@@ -1,6 +1,6 @@
 package br.com.hackathon.api.resources;
 
-import br.com.hackathon.dto.CriarSimulacaoDto;
+import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
 import br.com.hackathon.services.SimulacaoService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;

@@ -12,8 +12,8 @@ public class ProdutcNotFoundExceptionMapper implements ExceptionMapper<ProductNo
     @Override
     public Response toResponse(ProductNotFoundException e) {
         ErrorPayload errorPayload = ErrorPayload.builder()
-                .codigo("PRODUTO_NAO_ENCONTRADO")
-                .mensagem("Nenhum produto disponivel para os dados informados")
+                .exception(e.getClass().getSimpleName())
+                .mensagem(e.getMessage())
                 .build();
 
         return Response.status(Response.Status.BAD_REQUEST)

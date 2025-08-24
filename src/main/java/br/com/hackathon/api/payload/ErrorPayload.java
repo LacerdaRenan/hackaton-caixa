@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class ErrorPayload {
-    public String codigo;
+    public String exception;
     public String mensagem;
 }
