@@ -33,7 +33,7 @@ public class SimulacaoResource {
     public Response listarTodasSimulacoes(
             @QueryParam("pagina") @DefaultValue("1") short pagina,
             @QueryParam("tamanhoPagina") @DefaultValue("5") int tamanhoPagina) {
-        var simulacoes = simulacaoService.listarSimulacoes(pagina, tamanhoPagina);
+        var simulacoes = simulacaoService.listarSimulacoesPaginadas(pagina, tamanhoPagina);
         return Response.ok(simulacoes).build();
     }
 

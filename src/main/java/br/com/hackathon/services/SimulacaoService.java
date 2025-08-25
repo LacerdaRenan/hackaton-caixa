@@ -154,37 +154,31 @@ public class SimulacaoService {
         return BigDecimal.ONE.add(taxaJuros).pow(parcelaAtual-1).multiply(amortizacaoPrimeiraParcela);
     }
 
-    public PaginaPayload<Simulacao> listarSimulacoes(Short pagina, Integer tamanhoPagina) {
-        try {
+    public PaginaPayload<Simulacao> listarSimulacoesPaginadas(Short pagina, Integer tamanhoPagina) {
 
-            Long inicioProcessamentoTelemetria = System.nanoTime();
+        Long inicioProcessamentoTelemetria = System.nanoTime();
 
-            List<Simulacao> simulacoesPaginadas = simulacaoDao.listAllPaginado(pagina, tamanhoPagina);
-            Long totalRegistros = simulacaoDao.contarTotalRegistros();
+        List<Simulacao> simulacoesPaginadas = simulacaoDao.listarPaginadas(pagina, tamanhoPagina);
+        Long totalRegistros = simulacaoDao.contarTotalRegistros();
 
-            PaginaPayload<Simulacao> consultaPaginada = new PaginaPayload<>();
+        PaginaPayload<Simulacao> paginaConsulta = new PaginaPayload<>();
 
-            consultaPaginada.setPagina(pagina);
-            consultaPaginada.setQtdRegistros(totalRegistros);
-            consultaPaginada.setQtdRegistrosPagina(simulacoesPaginadas.size());
-            consultaPaginada.setRegistros(simulacoesPaginadas);
+        paginaConsulta.setPagina(pagina);
+        paginaConsulta.setQtdRegistros(totalRegistros);
+        paginaConsulta.setQtdRegistrosPagina(simulacoesPaginadas.size());
+        paginaConsulta.setRegistros(simulacoesPaginadas);
 
-            Long fimProcessamentoTelemetria = System.nanoTime();
-            Long duracaoProcessamentoTelemetria = (fimProcessamentoTelemetria - inicioProcessamentoTelemetria) / 1_000_000;
+        Long fimProcessamentoTelemetria = System.nanoTime();
+        Long duracaoProcessamentoTelemetria = (fimProcessamentoTelemetria - inicioProcessamentoTelemetria) / 1_000_000;
 
-            telemetriaService.registrarDadosApi("Listar Simulacoes", duracaoProcessamentoTelemetria, (short) 200);
+        telemetriaService.registrarDadosApi("Listar Simulacoes", duracaoProcessamentoTelemetria, (short) 200);
 
-            return consultaPaginada;
-
-        } catch (Exception e) {
-            log.info("erro ao buscar simulacoes {}", e.getMessage());
-            return new PaginaPayload<>();
-        }
+        return paginaConsulta;
     }
 
     public RespostaVolumeProdutoSimulacaoDto calcularVolumeSimuladoProduto(Integer codigoProduto, LocalDate data) {
 
-        List<Simulacao> simulacoesProdutoPorDia = simulacaoDao.listAllByCodigoProduto(codigoProduto, data);
+        List<Simulacao> simulacoesProdutoPorDia = simulacaoDao.listarPorCodigoProduto(codigoProduto, data);
         ProdutoDto produtoDto = produtoService.buscarProdutoPorId(codigoProduto);
 
         BigDecimal valorTotalCredito = BigDecimal.ZERO;

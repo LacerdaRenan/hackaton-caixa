@@ -15,7 +15,7 @@ public class SimulacaoDao {
     @PersistenceUnit("h2")
     EntityManager em;
 
-    public List<Simulacao> listAllPaginado(Short pagina, Integer tamanhoPagina) {
+    public List<Simulacao> listarPaginadas(Short pagina, Integer tamanhoPagina) {
         TypedQuery<Simulacao> query = em.createQuery("FROM Simulacao ORDER BY idSimulacao", Simulacao.class);
         query.setFirstResult((pagina-1)*tamanhoPagina);
         query.setMaxResults(tamanhoPagina);
@@ -23,7 +23,7 @@ public class SimulacaoDao {
         return query.getResultList();
     }
 
-    public List<Simulacao> listAllByCodigoProduto(Integer codigoProduto, LocalDate data) {
+    public List<Simulacao> listarPorCodigoProduto(Integer codigoProduto, LocalDate data) {
         TypedQuery<Simulacao> query = em.createQuery("SELECT s FROM Simulacao s WHERE s.codigoProduto = :codigoProduto AND s.dataCriacao = :data", Simulacao.class);
         query.setParameter("codigoProduto", codigoProduto);
         query.setParameter("data", data);

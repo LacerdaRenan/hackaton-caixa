@@ -1,6 +1,7 @@
 package br.com.hackathon.services;
 
 import br.com.hackathon.api.common.Mensagens;
+import br.com.hackathon.api.payload.PaginaPayload;
 import br.com.hackathon.dao.SimulacaoDao;
 import br.com.hackathon.dto.ProdutoDto;
 import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
@@ -22,6 +23,7 @@ import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.stream.Stream;
 
 @QuarkusTest
@@ -56,12 +58,15 @@ class SimulacaoServiceTest {
 
     @ParameterizedTest
     @MethodSource("productProvider")
-    void testSimulacoesParaProduto(CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto, BigDecimal valorTotalParcelas) {
+    void testSimulacoesValidasParaProduto(CriarSimulacaoDto criarSimulacaoDto, ProdutoDto produtoDto, BigDecimal valorTotalParcelas) {
 
         Mockito.when(produtoService.buscarProdutoPorParametro(criarSimulacaoDto))
                 .thenReturn(produtoDto);
 
         RespostaSimulacaoDto respostaSimulacaoDto = simulacaoService.criarSimulacao(criarSimulacaoDto);
+
+        Mockito.verify(produtoService, Mockito.times(1))
+                .buscarProdutoPorParametro(criarSimulacaoDto);
 
         ArgumentCaptor<Simulacao> simulacaoCaptor = ArgumentCaptor.forClass(Simulacao.class);
         Mockito.verify(simulacaoDao, Mockito.times(1)).save(simulacaoCaptor.capture());
@@ -95,4 +100,35 @@ class SimulacaoServiceTest {
                 )
         );
     }
+
+    @Test
+    void testListarSimulacoesPaginadas() {
+
+        Short pagina = 1;
+        Integer tamanhoPagina = 10;
+        Long totalRegistros = 1L;
+
+        List<Simulacao> registros = List.of(Simulacao.builder().build());
+
+        Mockito.when(simulacaoDao.listarPaginadas(pagina, tamanhoPagina))
+                .thenReturn(registros);
+
+        Mockito.when(simulacaoDao.contarTotalRegistros())
+                .thenReturn(totalRegistros);
+
+        PaginaPayload<Simulacao> paginaPayload = simulacaoService.listarSimulacoesPaginadas(pagina, tamanhoPagina);
+
+        Mockito.verify(simulacaoDao, Mockito.times(1))
+                .listarPaginadas(pagina, tamanhoPagina);
+
+        Mockito.verify(simulacaoDao, Mockito.times(1))
+                .contarTotalRegistros();
+
+        Assertions.assertEquals(pagina, paginaPayload.getPagina());
+        Assertions.assertEquals(totalRegistros, paginaPayload.getQtdRegistros());
+        Assertions.assertEquals(1, paginaPayload.getQtdRegistrosPagina());
+        Assertions.assertEquals(registros, paginaPayload.getRegistros());
+
+    }
+
 }
