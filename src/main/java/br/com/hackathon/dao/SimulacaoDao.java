@@ -35,7 +35,8 @@ public class SimulacaoDao {
         return em.createQuery("SELECT COUNT(s) FROM Simulacao s", Long.class).getSingleResult();
     }
 
-    public void save(Simulacao simulacao) {
+    public Simulacao save(Simulacao simulacao) {
         em.persist(simulacao);
+        return simulacao;
     }
 }

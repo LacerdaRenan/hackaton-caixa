@@ -53,7 +53,7 @@ public class SimulacaoService {
         resultadoSimulacao.add(simulacaoSac);
         resultadoSimulacao.add(simulacaoPrice);
 
-        salvarSimulacao(criarSimulacaoDto, simulacaoSac, produtoDto);
+        Simulacao simulacao = salvarSimulacao(criarSimulacaoDto, simulacaoSac, produtoDto);
 
         Long fimProcessamentoTelemetria = System.nanoTime();
         Long duracaoProcessamentoTelemetria = (fimProcessamentoTelemetria - inicioProcessamentoTelemetria) / 1_000_000;
@@ -61,6 +61,7 @@ public class SimulacaoService {
         telemetriaService.registrarDadosApi("Simulacao Credito", duracaoProcessamentoTelemetria, (short) 201);
 
         return RespostaSimulacaoDto.builder()
+                .idSimulacao(simulacao.getIdSimulacao())
                 .codigoProduto(produtoDto.getCodigoProduto())
                 .descricaoProduto(produtoDto.getNomeProduto())
                 .taxaJuros(produtoDto.getTaxaJuros().setScale(4, RoundingMode.HALF_UP))
@@ -206,22 +207,18 @@ public class SimulacaoService {
     }
 
     @Transactional(value = Transactional.TxType.REQUIRED)
-    public void salvarSimulacao(CriarSimulacaoDto criarSimulacaoDto, SimulacaoDto simulacaoDto, ProdutoDto produtoDto) {
+    public Simulacao salvarSimulacao(CriarSimulacaoDto criarSimulacaoDto, SimulacaoDto simulacaoDto, ProdutoDto produtoDto) {
 
         BigDecimal valorTotalParcelasSac = simulacaoDto.getParcelas()
                 .stream()
                 .map(ParcelaDto::getValorPrestacao)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        try {
-            simulacaoDao.save(Simulacao.builder()
-                            .codigoProduto(produtoDto.getCodigoProduto())
-                            .valorDesejado(criarSimulacaoDto.getValorDesejado())
-                            .prazo(criarSimulacaoDto.getPrazo())
-                            .valorTotalParcelas(valorTotalParcelasSac)
-                            .build());
-        } catch (Exception e) {
-            log.info("erro ao salvar nova simulacao {}", e.getMessage());
-        }
+        return simulacaoDao.save(Simulacao.builder()
+                        .codigoProduto(produtoDto.getCodigoProduto())
+                        .valorDesejado(criarSimulacaoDto.getValorDesejado())
+                        .prazo(criarSimulacaoDto.getPrazo())
+                        .valorTotalParcelas(valorTotalParcelasSac)
+                        .build());
     }
 }

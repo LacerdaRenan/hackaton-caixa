@@ -63,6 +63,9 @@ class SimulacaoServiceTest {
         Mockito.when(produtoService.buscarProdutoPorParametro(criarSimulacaoDto))
                 .thenReturn(produtoDto);
 
+        Mockito.when(simulacaoDao.save(Mockito.any()))
+                .thenReturn(Simulacao.builder().idSimulacao(1L).build());
+
         RespostaSimulacaoDto respostaSimulacaoDto = simulacaoService.criarSimulacao(criarSimulacaoDto);
 
         Mockito.verify(produtoService, Mockito.times(1))
