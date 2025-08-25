@@ -1,5 +1,6 @@
 package br.com.hackathon.services;
 
+import br.com.hackathon.api.common.Mensagens;
 import br.com.hackathon.dao.ProdutoDao;
 import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
 import br.com.hackathon.dto.ProdutoDto;
@@ -62,7 +63,7 @@ public class ProdutoService {
         List<Produto> produtos = produtoDao.buscarProdutoPorParametros(criarSimulacaoDto);
 
         if (produtos.isEmpty())
-            throw new ProductNotFoundException("Nenhum produto disponivel para os dados informados");
+            throw new ProductNotFoundException(Mensagens.PRODUTO_NAO_ENCONTRADO);
 
         return produtos.stream()
                 .min(Comparator.comparing(Produto::getTaxaJuros))
