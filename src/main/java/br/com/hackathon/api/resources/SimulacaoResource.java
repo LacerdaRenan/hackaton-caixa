@@ -38,11 +38,9 @@ public class SimulacaoResource {
     }
 
     @GET
-    @Path("/produto/{id}")
-    public Response buscarVolumeSimuladoPorProdutoId(
-            @PathParam("id") Integer codigoProduto,
-            @QueryParam("data") LocalDate data) {
-        var volumes = simulacaoService.calcularVolumeSimuladoProduto(codigoProduto, data);
+    @Path("/{dataReferencia}")
+    public Response listarVolumeSimuladoPorProduto(@PathParam("dataReferencia") LocalDate data) {
+        var volumes = simulacaoService.calcularVolumeSimuladoData(data);
         return Response.ok(volumes).build();
     }
 }

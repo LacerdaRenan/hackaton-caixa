@@ -23,9 +23,15 @@ public class SimulacaoDao {
         return query.getResultList();
     }
 
-    public List<Simulacao> listarPorCodigoProduto(Integer codigoProduto, LocalDate data) {
-        TypedQuery<Simulacao> query = em.createQuery("SELECT s FROM Simulacao s WHERE s.codigoProduto = :codigoProduto AND s.dataCriacao = :data", Simulacao.class);
-        query.setParameter("codigoProduto", codigoProduto);
+    public List<Simulacao> listarPorData(LocalDate data) {
+
+        String sql = """
+                SELECT s
+                FROM Simulacao s
+                WHERE s.dataCriacao = :data
+                """ ;
+
+        TypedQuery<Simulacao> query = em.createQuery(sql, Simulacao.class);
         query.setParameter("data", data);
 
         return query.getResultList();

@@ -6,6 +6,7 @@ import br.com.hackathon.dao.SimulacaoDao;
 import br.com.hackathon.dto.ProdutoDto;
 import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
 import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
+import br.com.hackathon.dto.volume_produto_simulacao.RespostaVolumeProdutoSimulacaoDto;
 import br.com.hackathon.exceptions.ProductNotFoundException;
 import br.com.hackathon.model.h2.Simulacao;
 import io.quarkus.test.InjectMock;
@@ -23,6 +24,7 @@ import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -131,7 +133,60 @@ class SimulacaoServiceTest {
         Assertions.assertEquals(totalRegistros, paginaPayload.getQtdRegistros());
         Assertions.assertEquals(1, paginaPayload.getQtdRegistrosPagina());
         Assertions.assertEquals(registros, paginaPayload.getRegistros());
+    }
 
+    @Test
+    void testVolumeSimulacoesData() {
+
+        LocalDate data = LocalDate.now();
+
+        int quantidadeProdutos = 4;
+
+        Simulacao simulacaoP1 = Simulacao.builder()
+                .codigoProduto(1)
+                .valorTotalParcelas(new BigDecimal("948.33"))
+                .valorDesejado(new BigDecimal("900.00"))
+                .prazo((short) 5)
+                .build();
+
+        Simulacao simulacaoP2 = Simulacao.builder()
+                .codigoProduto(2)
+                .valorTotalParcelas(new BigDecimal("122750.00"))
+                .valorDesejado(new BigDecimal("100000.00"))
+                .prazo((short) 25)
+                .build();
+
+        Simulacao simulacaoP3 = Simulacao.builder()
+                .codigoProduto(3)
+                .valorTotalParcelas(new BigDecimal("1454999.98"))
+                .valorDesejado(new BigDecimal("1000000.00"))
+                .prazo((short) 49)
+                .build();
+
+        Simulacao simulacaoP4 = Simulacao.builder()
+                .codigoProduto(4)
+                .valorTotalParcelas(new BigDecimal("17399000.00"))
+                .valorDesejado(new BigDecimal("10000000.00"))
+                .prazo((short) 97)
+                .build();
+
+        List<Simulacao> simulacoesProdutoPorDia = List.of(
+                simulacaoP1, simulacaoP2, simulacaoP3, simulacaoP4,
+                simulacaoP1, simulacaoP2, simulacaoP3, simulacaoP4,
+                simulacaoP1, simulacaoP2, simulacaoP3, simulacaoP4,
+                simulacaoP1, simulacaoP2, simulacaoP3, simulacaoP4,
+                simulacaoP1, simulacaoP2, simulacaoP3, simulacaoP4,
+                simulacaoP1, simulacaoP2, simulacaoP3, simulacaoP4,
+                simulacaoP1, simulacaoP2, simulacaoP3, simulacaoP4
+        );
+
+        Mockito.when(simulacaoDao.listarPorData(data))
+                .thenReturn(simulacoesProdutoPorDia);
+
+        RespostaVolumeProdutoSimulacaoDto response = simulacaoService.calcularVolumeSimuladoData(data);
+
+        Assertions.assertEquals(data, response.getDataReferencia());
+        Assertions.assertEquals(quantidadeProdutos, response.getSimulacoes().size());
     }
 
 }

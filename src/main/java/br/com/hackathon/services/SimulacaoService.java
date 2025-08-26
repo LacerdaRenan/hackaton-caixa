@@ -8,9 +8,11 @@ import br.com.hackathon.dto.simulacao.ParcelaDto;
 import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
 import br.com.hackathon.dto.simulacao.SimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.RespostaVolumeProdutoSimulacaoDto;
+import br.com.hackathon.dto.volume_produto_simulacao.ValoresParciais;
 import br.com.hackathon.dto.volume_produto_simulacao.VolumeProdutoSimulacaoDto;
 import br.com.hackathon.enums.EnumTipoFinanciamento;
 import br.com.hackathon.model.h2.Simulacao;
+import br.com.hackathon.model.sqlserver.Produto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -21,21 +23,24 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @ApplicationScoped
 public class SimulacaoService {
 
     @Inject
-    SimulacaoDao simulacaoDao;
+    private SimulacaoDao simulacaoDao;
 
     @Inject
-    TelemetriaService telemetriaService;
+    private TelemetriaService telemetriaService;
 
     @Inject
-    ProdutoService produtoService;
+    private ProdutoService produtoService;
+
+    private final MathContext mc = new MathContext(10, RoundingMode.HALF_UP);
 
     public RespostaSimulacaoDto criarSimulacao(CriarSimulacaoDto criarSimulacaoDto) {
 
@@ -86,9 +91,8 @@ public class SimulacaoService {
     }
 
     private List<ParcelaDto> calcularDadosParcelaSac(BigDecimal valor, Short numeroParcelas, BigDecimal taxaJuros) {
-        MathContext mathContext = new MathContext(10, RoundingMode.HALF_UP);
 
-        BigDecimal amortizacao = valor.divide(BigDecimal.valueOf(numeroParcelas), mathContext);
+        BigDecimal amortizacao = valor.divide(BigDecimal.valueOf(numeroParcelas), mc);
         BigDecimal jurosPrimeiraParcela = valor.multiply(taxaJuros);
         BigDecimal primeiraParcela = amortizacao.add(jurosPrimeiraParcela);
         BigDecimal constanteReducao = amortizacao.multiply(taxaJuros);
@@ -141,14 +145,13 @@ public class SimulacaoService {
     }
 
     private BigDecimal calularParcelaBrutaPrice(BigDecimal valor, Short numeroParcelas, BigDecimal taxaJuros) {
-        MathContext mathContext = new MathContext(10, RoundingMode.HALF_UP);
 
         BigDecimal potenciaTaxaMaisUm = BigDecimal.ONE.add(taxaJuros).pow(numeroParcelas);
         BigDecimal numeradorFator = potenciaTaxaMaisUm.subtract(BigDecimal.ONE);
         BigDecimal denominadorFator = potenciaTaxaMaisUm.multiply(taxaJuros);
-        BigDecimal fator = numeradorFator.divide(denominadorFator, mathContext);
+        BigDecimal fator = numeradorFator.divide(denominadorFator, mc);
 
-        return valor.divide(fator, mathContext);
+        return valor.divide(fator, mc);
     }
 
     private BigDecimal calculaValorAmortizacaoParcelaPrice(BigDecimal amortizacaoPrimeiraParcela, BigDecimal taxaJuros, Integer parcelaAtual) {
@@ -177,33 +180,62 @@ public class SimulacaoService {
         return paginaConsulta;
     }
 
-    public RespostaVolumeProdutoSimulacaoDto calcularVolumeSimuladoProduto(Integer codigoProduto, LocalDate data) {
+    public RespostaVolumeProdutoSimulacaoDto calcularVolumeSimuladoData(LocalDate data) {
 
-        List<Simulacao> simulacoesProdutoPorDia = simulacaoDao.listarPorCodigoProduto(codigoProduto, data);
-        ProdutoDto produtoDto = produtoService.buscarProdutoPorId(codigoProduto);
+        List<Simulacao> simulacoesProdutoPorDia = simulacaoDao.listarPorData(data);
 
-        BigDecimal valorTotalCredito = BigDecimal.ZERO;
-        BigDecimal valorTotalDesejado = BigDecimal.ZERO;
+        log.info("volume simulado na data {}: {}", data, simulacoesProdutoPorDia.size());
 
-        for (Simulacao s : simulacoesProdutoPorDia) {
-            valorTotalDesejado = valorTotalDesejado.add(s.getValorDesejado());
-            valorTotalCredito =  valorTotalCredito.add(s.getValorTotalParcelas());
-        }
-
-        MathContext mathContext = new MathContext(10, RoundingMode.HALF_UP);
-        BigDecimal valorMedioPrestacao = valorTotalCredito.divide(BigDecimal.valueOf(simulacoesProdutoPorDia.size()), mathContext);
+        Map<Integer, ValoresParciais> mapValoresParciais = processaMapReduceSimulacoes(simulacoesProdutoPorDia);
+        List<VolumeProdutoSimulacaoDto> simulacoes = mapToVolumeProdutoSimulacaoDto(mapValoresParciais);
 
         return RespostaVolumeProdutoSimulacaoDto.builder()
                 .dataReferencia(data)
-                .simulacoes(Collections.singletonList(VolumeProdutoSimulacaoDto.builder()
-                        .codigoProduto(produtoDto.getCodigoProduto())
-                        .descricaoProduto(produtoDto.getNomeProduto())
-                        .taxaMediaJuro(produtoDto.getTaxaJuros().setScale(4, RoundingMode.HALF_UP))
-                        .valorMedioPrestacao(valorMedioPrestacao.setScale(2, RoundingMode.HALF_UP))
-                        .valorTotalDesejado(valorTotalDesejado.setScale(2, RoundingMode.HALF_UP))
-                        .valorTotalCredito(valorTotalCredito.setScale(2, RoundingMode.HALF_UP))
-                        .build()))
+                .simulacoes(simulacoes)
                 .build();
+    }
+
+    private Map<Integer, ValoresParciais> processaMapReduceSimulacoes(List<Simulacao> simulacoes) {
+        return simulacoes.stream()
+                .collect(Collectors.toMap(
+                        Simulacao::getCodigoProduto,
+                        s -> new ValoresParciais(
+                                s.getValorTotalParcelas().divide(s.getValorDesejado().multiply(BigDecimal.valueOf(s.getPrazo())), mc),
+                                s.getValorTotalParcelas().divide(BigDecimal.valueOf(s.getPrazo()), mc),
+                                s.getValorDesejado(),
+                                s.getValorTotalParcelas()
+                        ),
+                        (v1, v2) -> new ValoresParciais(
+                                (v1.taxaMediaJuro().add(v2.taxaMediaJuro())).divide(BigDecimal.TWO, mc),
+                                (v1.valorMedioPrestacao().add(v2.valorMedioPrestacao())).divide(BigDecimal.TWO, mc),
+                                v1.valorTotalDesejado().add(v2.valorTotalDesejado()),
+                                v1.valorTotalCredito().add(v2.valorTotalCredito())
+                        )
+                ));
+    }
+
+    private List<VolumeProdutoSimulacaoDto> mapToVolumeProdutoSimulacaoDto(Map<Integer, ValoresParciais> mapValoresParciais) {
+        List<VolumeProdutoSimulacaoDto> volumeProdutoSimulacaoDtos = new ArrayList<>();
+        List<Produto> produtos = produtoService.listarProdutos();
+
+        for (Map.Entry<Integer, ValoresParciais> parciaisEntry : mapValoresParciais.entrySet()) {
+            Produto produto = produtos.stream()
+                    .filter(p -> p.getCodigoProduto().equals(parciaisEntry.getKey()))
+                    .findFirst()
+                    .orElse(new Produto());
+
+            volumeProdutoSimulacaoDtos.add(
+                    VolumeProdutoSimulacaoDto.builder()
+                            .codigoProduto(parciaisEntry.getKey())
+                            .descricaoProduto(produto.getNomeProduto())
+                            .taxaMediaJuro(parciaisEntry.getValue().taxaMediaJuro().setScale(3, RoundingMode.HALF_UP))
+                            .valorMedioPrestacao(parciaisEntry.getValue().valorMedioPrestacao().setScale(2, RoundingMode.HALF_UP))
+                            .valorTotalDesejado(parciaisEntry.getValue().valorTotalDesejado())
+                            .valorTotalCredito(parciaisEntry.getValue().valorTotalCredito())
+                            .build()
+            );
+        }
+        return volumeProdutoSimulacaoDtos;
     }
 
     @Transactional(value = Transactional.TxType.REQUIRED)
