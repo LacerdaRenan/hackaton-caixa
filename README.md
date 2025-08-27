@@ -6,7 +6,7 @@
 
 O **Simulador de Crédito API** é uma solução desenvolvida para o Hackathon 2025 da Caixa Econômica Federal, com o objetivo de fornecer um serviço robusto e escalável para simulações de financiamento, e, com  isso, disponibilizar para todos os brasileiros a possibilidade de simulação de empréstimo. A API permite calcular financiamentos pelos sistemas **SAC (Sistema de Amortização Constante)** e **Price**, além de oferecer endpoints para monitoramento e análise de dados.
 
-Este projeto foi construído utilizando **Quarkus**, pois uma arquitetura de microsserviços moderna, garantindo alta performance, resiliência e observabilidade.
+Este projeto foi construído utilizando **Quarkus**, pois o mesmo disponibiliza uma arquitetura de microsserviços moderna, garantindo alta performance, resiliência e observabilidade.
 
 ---
 
@@ -46,20 +46,22 @@ Siga os passos abaixo para executar o projeto em seu ambiente local.
 
 ### Passos para Execução
 
-1.  **Clone o repositório:**
+1.  **Descompacte o arquivo:**
+    Extraia o conteúdo do arquivo `.zip` do projeto em um diretório de sua preferência.
+
+2.  **Acesse o diretório do projeto:**
+    Abra um terminal ou prompt de comando e navegue até a pasta que você acabou de extrair. O terminal deve estar na mesma pasta do arquivo **docker-compose.yml**
     ```bash
-    git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
-    cd seu-repositorio
+    cd caminho/para/projeto
     ```
 
-2.  **Suba os contêineres com Docker Compose:**
-    O comando a seguir irá construir as imagens e iniciar a aplicação Quarkus e o banco de dados MySQL.
-
+3.  **Suba os contêineres com Docker Compose:**
+    Ao encontrar o arquivo docker-compose.yml, execute o comando a seguir no terminal. Ele irá construir as imagens e iniciar a aplicação Quarkus junto com o banco de dados MySQL.
     ```bash
     docker compose up --build
     ```
 
-3.  **Aguarde a inicialização:**
+4.  **Aguarde a inicialização:**
     Aguarde até que os logs indiquem que a aplicação Quarkus foi iniciada com sucesso. Geralmente, você verá uma mensagem como: `Listening on: http://0.0.0.0:8080`.
 
 - Ao finalizar o build, a API estará disponível em `http://localhost:8080/api`.
