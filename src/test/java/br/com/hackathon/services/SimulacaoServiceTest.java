@@ -7,6 +7,7 @@ import br.com.hackathon.dto.ProdutoDto;
 import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
 import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.RespostaVolumeProdutoSimulacaoDto;
+import br.com.hackathon.dto.volume_produto_simulacao.VolumeProdutoSimulacaoDto;
 import br.com.hackathon.exceptions.ProductNotFoundException;
 import br.com.hackathon.model.h2.Simulacao;
 import io.quarkus.test.InjectMock;
@@ -185,6 +186,33 @@ class SimulacaoServiceTest {
                 .thenReturn(simulacoesProdutoPorDia);
 
         RespostaVolumeProdutoSimulacaoDto response = simulacaoService.calcularVolumeSimuladoData(data);
+
+        for (VolumeProdutoSimulacaoDto v : response.getSimulacoes()) {
+            if (v.getCodigoProduto().equals(1)) {
+                Assertions.assertEquals(new BigDecimal("0.0179"), v.getTaxaMediaJuro());
+                Assertions.assertEquals(new BigDecimal("6300.00"), v.getValorTotalDesejado());
+                Assertions.assertEquals(new BigDecimal("6638.31"), v.getValorTotalCredito());
+                Assertions.assertEquals(new BigDecimal("189.67"), v.getValorMedioPrestacao());
+            }
+            if (v.getCodigoProduto().equals(2)) {
+                Assertions.assertEquals(new BigDecimal("0.0175"), v.getTaxaMediaJuro());
+                Assertions.assertEquals(new BigDecimal("700000.00"), v.getValorTotalDesejado());
+                Assertions.assertEquals(new BigDecimal("859250.00"), v.getValorTotalCredito());
+                Assertions.assertEquals(new BigDecimal("4910.00"), v.getValorMedioPrestacao());
+            }
+            if (v.getCodigoProduto().equals(3)) {
+                Assertions.assertEquals(new BigDecimal("0.0182"), v.getTaxaMediaJuro());
+                Assertions.assertEquals(new BigDecimal("7000000.00"), v.getValorTotalDesejado());
+                Assertions.assertEquals(new BigDecimal("10184999.86"), v.getValorTotalCredito());
+                Assertions.assertEquals(new BigDecimal("29693.88"), v.getValorMedioPrestacao());
+            }
+            if (v.getCodigoProduto().equals(4)) {
+                Assertions.assertEquals(new BigDecimal("0.0151"), v.getTaxaMediaJuro());
+                Assertions.assertEquals(new BigDecimal("70000000.00"), v.getValorTotalDesejado());
+                Assertions.assertEquals(new BigDecimal("121793000.00"), v.getValorTotalCredito());
+                Assertions.assertEquals(new BigDecimal("179371.13"), v.getValorMedioPrestacao());
+            }
+        }
 
         Assertions.assertEquals(data, response.getDataReferencia());
         Assertions.assertEquals(quantidadeProdutos, response.getSimulacoes().size());
