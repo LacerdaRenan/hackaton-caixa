@@ -146,6 +146,7 @@ class SimulacaoServiceTest {
                 .codigoProduto(1)
                 .valorTotalParcelas(new BigDecimal("948.33"))
                 .valorDesejado(new BigDecimal("900.00"))
+                .taxaJuros(new BigDecimal("0.017900000"))
                 .prazo((short) 5)
                 .build();
 
@@ -153,6 +154,7 @@ class SimulacaoServiceTest {
                 .codigoProduto(2)
                 .valorTotalParcelas(new BigDecimal("122750.00"))
                 .valorDesejado(new BigDecimal("100000.00"))
+                .taxaJuros(new BigDecimal("0.017500000"))
                 .prazo((short) 25)
                 .build();
 
@@ -160,6 +162,7 @@ class SimulacaoServiceTest {
                 .codigoProduto(3)
                 .valorTotalParcelas(new BigDecimal("1454999.98"))
                 .valorDesejado(new BigDecimal("1000000.00"))
+                .taxaJuros(new BigDecimal("0.018200000"))
                 .prazo((short) 49)
                 .build();
 
@@ -167,6 +170,7 @@ class SimulacaoServiceTest {
                 .codigoProduto(4)
                 .valorTotalParcelas(new BigDecimal("17399000.00"))
                 .valorDesejado(new BigDecimal("10000000.00"))
+                .taxaJuros(new BigDecimal("0.015100000"))
                 .prazo((short) 97)
                 .build();
 

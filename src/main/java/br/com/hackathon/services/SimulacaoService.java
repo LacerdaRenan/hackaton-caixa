@@ -8,11 +8,9 @@ import br.com.hackathon.dto.simulacao.ParcelaDto;
 import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
 import br.com.hackathon.dto.simulacao.SimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.RespostaVolumeProdutoSimulacaoDto;
-import br.com.hackathon.dto.volume_produto_simulacao.ValoresParciais;
 import br.com.hackathon.dto.volume_produto_simulacao.VolumeProdutoSimulacaoDto;
 import br.com.hackathon.enums.EnumTipoFinanciamento;
 import br.com.hackathon.model.h2.Simulacao;
-import br.com.hackathon.model.sqlserver.Produto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -186,8 +184,8 @@ public class SimulacaoService {
 
         log.info("volume simulado na data {}: {}", data, simulacoesProdutoPorDia.size());
 
-        Map<Integer, ValoresParciais> mapValoresParciais = processaMapReduceSimulacoes(simulacoesProdutoPorDia);
-        List<VolumeProdutoSimulacaoDto> simulacoes = mapToVolumeProdutoSimulacaoDto(mapValoresParciais);
+        Map<Integer, VolumeProdutoSimulacaoDto> mapVolumeSimulacoes = processaMapReduceSimulacoes(simulacoesProdutoPorDia);
+        List<VolumeProdutoSimulacaoDto> simulacoes = mapToVolumeProdutoSimulacaoDto(mapVolumeSimulacoes);
 
         return RespostaVolumeProdutoSimulacaoDto.builder()
                 .dataReferencia(data)
@@ -195,47 +193,38 @@ public class SimulacaoService {
                 .build();
     }
 
-    private Map<Integer, ValoresParciais> processaMapReduceSimulacoes(List<Simulacao> simulacoes) {
+    private Map<Integer, VolumeProdutoSimulacaoDto> processaMapReduceSimulacoes(List<Simulacao> simulacoes) {
         return simulacoes.stream()
                 .collect(Collectors.toMap(
                         Simulacao::getCodigoProduto,
-                        s -> new ValoresParciais(
-                                s.getValorTotalParcelas().divide(s.getValorDesejado().multiply(BigDecimal.valueOf(s.getPrazo())), mc),
+                        s -> new VolumeProdutoSimulacaoDto(
+                                s.getCodigoProduto(),
+                                s.getDescricaoProduto(),
+                                s.getTaxaJuros(),
                                 s.getValorTotalParcelas().divide(BigDecimal.valueOf(s.getPrazo()), mc),
                                 s.getValorDesejado(),
                                 s.getValorTotalParcelas()
                         ),
-                        (v1, v2) -> new ValoresParciais(
-                                (v1.taxaMediaJuro().add(v2.taxaMediaJuro())).divide(BigDecimal.TWO, mc),
-                                (v1.valorMedioPrestacao().add(v2.valorMedioPrestacao())).divide(BigDecimal.TWO, mc),
-                                v1.valorTotalDesejado().add(v2.valorTotalDesejado()),
-                                v1.valorTotalCredito().add(v2.valorTotalCredito())
+                        (v1, v2) -> new VolumeProdutoSimulacaoDto(
+                                v1.getCodigoProduto(),
+                                v1.getDescricaoProduto(),
+                                (v1.getTaxaMediaJuro().add(v2.getTaxaMediaJuro())).divide(BigDecimal.TWO, mc),
+                                (v1.getValorMedioPrestacao().add(v2.getValorMedioPrestacao())).divide(BigDecimal.TWO, mc),
+                                v1.getValorTotalDesejado().add(v2.getValorTotalDesejado()),
+                                v1.getValorTotalCredito().add(v2.getValorTotalCredito())
                         )
                 ));
     }
 
-    private List<VolumeProdutoSimulacaoDto> mapToVolumeProdutoSimulacaoDto(Map<Integer, ValoresParciais> mapValoresParciais) {
-        List<VolumeProdutoSimulacaoDto> volumeProdutoSimulacaoDtos = new ArrayList<>();
-        List<Produto> produtos = produtoService.listarProdutos();
-
-        for (Map.Entry<Integer, ValoresParciais> parciaisEntry : mapValoresParciais.entrySet()) {
-            Produto produto = produtos.stream()
-                    .filter(p -> p.getCodigoProduto().equals(parciaisEntry.getKey()))
-                    .findFirst()
-                    .orElse(new Produto());
-
-            volumeProdutoSimulacaoDtos.add(
-                    VolumeProdutoSimulacaoDto.builder()
-                            .codigoProduto(parciaisEntry.getKey())
-                            .descricaoProduto(produto.getNomeProduto())
-                            .taxaMediaJuro(parciaisEntry.getValue().taxaMediaJuro().setScale(3, RoundingMode.HALF_UP))
-                            .valorMedioPrestacao(parciaisEntry.getValue().valorMedioPrestacao().setScale(2, RoundingMode.HALF_UP))
-                            .valorTotalDesejado(parciaisEntry.getValue().valorTotalDesejado())
-                            .valorTotalCredito(parciaisEntry.getValue().valorTotalCredito())
-                            .build()
-            );
-        }
-        return volumeProdutoSimulacaoDtos;
+    private List<VolumeProdutoSimulacaoDto> mapToVolumeProdutoSimulacaoDto(Map<Integer, VolumeProdutoSimulacaoDto> mapVolumeSimulacoes) {
+        mapVolumeSimulacoes.values()
+                .forEach(m -> {
+                    m.setTaxaMediaJuro(m.getTaxaMediaJuro().setScale(4, RoundingMode.HALF_UP));
+                    m.setValorMedioPrestacao(m.getValorMedioPrestacao().setScale(2, RoundingMode.HALF_UP));
+                    m.setValorTotalDesejado(m.getValorTotalDesejado().setScale(2, RoundingMode.HALF_UP));
+                    m.setValorTotalCredito(m.getValorTotalCredito().setScale(2, RoundingMode.HALF_UP));
+                });
+         return mapVolumeSimulacoes.values().stream().toList();
     }
 
     @Transactional(value = Transactional.TxType.REQUIRED)
@@ -248,6 +237,8 @@ public class SimulacaoService {
 
         return simulacaoDao.save(Simulacao.builder()
                         .codigoProduto(produtoDto.getCodigoProduto())
+                        .descricaoProduto(produtoDto.getNomeProduto())
+                        .taxaJuros(produtoDto.getTaxaJuros())
                         .valorDesejado(criarSimulacaoDto.getValorDesejado())
                         .prazo(criarSimulacaoDto.getPrazo())
                         .valorTotalParcelas(valorTotalParcelasSac)

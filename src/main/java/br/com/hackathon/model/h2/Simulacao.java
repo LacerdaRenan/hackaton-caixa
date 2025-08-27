@@ -32,7 +32,13 @@ public class Simulacao {
     @Column(name = "CO_PRODUTO")
     private Integer codigoProduto;
 
-    @Column(name = "VR_TOTAL_PARCELAS")
+    @Column(name = "NO_PRODUTO")
+    private String descricaoProduto;
+
+    @Column(name = "TAXA_JUROS_SIM", precision = 10, scale = 9)
+    private BigDecimal taxaJuros;
+
+    @Column(name = "VR_TOTAL_PARCELAS", precision = 18, scale = 2)
     private BigDecimal valorTotalParcelas;
 
     @Column(name = "TS_DT_CRIACAO")
