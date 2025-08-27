@@ -1,9 +1,11 @@
 package br.com.hackathon.dto.telemetria;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 @Builder
 public class DadosTelemetriaDto {
     private String nomeApi;
@@ -11,5 +13,5 @@ public class DadosTelemetriaDto {
     private Double tempoMedio;
     private Long tempoMinimo;
     private Long tempoMaximo;
-    private Float percentualSucesso;
+    private Double percentualSucesso;
 }

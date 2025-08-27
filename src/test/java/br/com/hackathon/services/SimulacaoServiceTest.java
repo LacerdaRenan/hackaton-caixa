@@ -38,9 +38,6 @@ class SimulacaoServiceTest {
     SimulacaoDao simulacaoDao;
 
     @InjectMock
-    TelemetriaService telemetriaService;
-
-    @InjectMock
     ProdutoService produtoService;
 
     @Test

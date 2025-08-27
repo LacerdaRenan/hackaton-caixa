@@ -29,7 +29,7 @@ public class Telemetria {
     private Long duracao;
 
     @Column(name = "ST_CD_RSP")
-    private Short statusCodeResponse;
+    private Integer statusCodeResponse;
 
     @Column(name = "TS_DT_CRIACAO")
     @CreationTimestamp

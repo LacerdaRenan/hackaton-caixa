@@ -33,9 +33,6 @@ public class SimulacaoService {
     private SimulacaoDao simulacaoDao;
 
     @Inject
-    private TelemetriaService telemetriaService;
-
-    @Inject
     private ProdutoService produtoService;
 
     private final MathContext mc = new MathContext(10, RoundingMode.HALF_UP);
@@ -43,8 +40,6 @@ public class SimulacaoService {
     public RespostaSimulacaoDto criarSimulacao(CriarSimulacaoDto criarSimulacaoDto) {
 
         log.info("Dados simulacao {}", criarSimulacaoDto);
-
-        Long inicioProcessamentoTelemetria = System.nanoTime();
 
         ProdutoDto produtoDto = produtoService.buscarProdutoPorParametro(criarSimulacaoDto);
         log.info("produto selecionado: {}", produtoDto);
@@ -57,11 +52,6 @@ public class SimulacaoService {
         resultadoSimulacao.add(simulacaoPrice);
 
         Simulacao simulacao = salvarSimulacao(criarSimulacaoDto, simulacaoSac, produtoDto);
-
-        Long fimProcessamentoTelemetria = System.nanoTime();
-        Long duracaoProcessamentoTelemetria = (fimProcessamentoTelemetria - inicioProcessamentoTelemetria) / 1_000_000;
-
-        telemetriaService.registrarDadosApi("Simulacao Credito", duracaoProcessamentoTelemetria, (short) 201);
 
         return RespostaSimulacaoDto.builder()
                 .idSimulacao(simulacao.getIdSimulacao())
@@ -158,8 +148,6 @@ public class SimulacaoService {
 
     public PaginaPayload<Simulacao> listarSimulacoesPaginadas(Short pagina, Integer tamanhoPagina) {
 
-        Long inicioProcessamentoTelemetria = System.nanoTime();
-
         List<Simulacao> simulacoesPaginadas = simulacaoDao.listarPaginadas(pagina, tamanhoPagina);
         Long totalRegistros = simulacaoDao.contarTotalRegistros();
 
@@ -169,11 +157,6 @@ public class SimulacaoService {
         paginaConsulta.setQtdRegistros(totalRegistros);
         paginaConsulta.setQtdRegistrosPagina(simulacoesPaginadas.size());
         paginaConsulta.setRegistros(simulacoesPaginadas);
-
-        Long fimProcessamentoTelemetria = System.nanoTime();
-        Long duracaoProcessamentoTelemetria = (fimProcessamentoTelemetria - inicioProcessamentoTelemetria) / 1_000_000;
-
-        telemetriaService.registrarDadosApi("Listar Simulacoes", duracaoProcessamentoTelemetria, (short) 200);
 
         return paginaConsulta;
     }

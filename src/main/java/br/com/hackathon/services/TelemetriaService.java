@@ -10,9 +10,6 @@ import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.LongSummaryStatistics;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TelemetriaService {
@@ -21,33 +18,16 @@ public class TelemetriaService {
     TelemetriaDao telemetriaDao;
 
     public TelemetriaDto consultaDadosTelemetria(LocalDate data) {
-
-        List<Telemetria> dadosTelemetria = telemetriaDao.buscarDadosApiPorData(data);
-
-        Map<String, LongSummaryStatistics> dadosPorApi = dadosTelemetria.stream().collect(Collectors.groupingBy(
-                Telemetria::getNomeApi,
-                Collectors.summarizingLong(Telemetria::getDuracao)
-        ));
-
-        List<DadosTelemetriaDto> listaEndpoints = dadosPorApi.entrySet()
-                .stream()
-                .map(e -> DadosTelemetriaDto.builder()
-                        .nomeApi(e.getKey())
-                        .qtdRequisicoes(e.getValue().getCount())
-                        .tempoMedio(e.getValue().getAverage())
-                        .tempoMinimo(e.getValue().getMin())
-                        .tempoMaximo(e.getValue().getMax())
-                        .build())
-                .toList();
+        List<DadosTelemetriaDto> dadosTelemetriaDtos = telemetriaDao.buscarDadosTelemetriaData(data);
 
         return TelemetriaDto.builder()
                 .dataReferencia(data)
-                .listaEndpoints(listaEndpoints)
+                .listaEndpoints(dadosTelemetriaDtos)
                 .build();
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    public void registrarDadosApi(String nomeApi, Long duracao, Short statusResponse) {
+    public void registrarDadosApi(String nomeApi, Long duracao, Integer statusResponse) {
         telemetriaDao.save(Telemetria.builder()
                         .nomeApi(nomeApi)
                         .duracao(duracao)

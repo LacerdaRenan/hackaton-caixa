@@ -1,5 +1,6 @@
 package br.com.hackathon.dao;
 
+import br.com.hackathon.dto.telemetria.DadosTelemetriaDto;
 import br.com.hackathon.model.h2.Telemetria;
 import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,8 +16,24 @@ public class TelemetriaDao {
     @PersistenceUnit("h2")
     EntityManager em;
 
-    public List<Telemetria> buscarDadosApiPorData(LocalDate data) {
-        TypedQuery<Telemetria> query = em.createQuery("SELECT d FROM Telemetria d WHERE d.dataCriacao = :data", Telemetria.class);
+    public List<DadosTelemetriaDto> buscarDadosTelemetriaData(LocalDate data) {
+        String sql = """
+                SELECT
+                    t.nomeApi,
+                    COUNT(*) AS qtdRequisicoes,
+                    AVG(t.duracao) AS tempoMedio,
+                    MIN(t.duracao) AS tempoMinimo,
+                    MAX(t.duracao) AS tempoMaximo,
+                    (SUM(CASE WHEN t.statusCodeResponse >= 200 AND t.statusCodeResponse < 300 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS percentualSucesso
+                FROM
+                    Telemetria t
+                WHERE
+                    t.dataCriacao = :data
+                GROUP BY
+                    t.nomeApi
+                """;
+
+        TypedQuery<DadosTelemetriaDto> query = em.createQuery(sql, DadosTelemetriaDto.class);
         query.setParameter("data", data);
 
         return query.getResultList();

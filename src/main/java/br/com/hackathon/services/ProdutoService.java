@@ -21,9 +21,6 @@ public class ProdutoService {
     ProdutoDao produtoDao;
 
     @Inject
-    TelemetriaService telemetriaService;
-
-    @Inject
     ProdutoMapper produtoMapper;
 
     public List<Produto> listarProdutos() {
