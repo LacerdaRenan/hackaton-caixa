@@ -24,14 +24,15 @@ Este projeto foi construído utilizando **Quarkus**, pois o mesmo disponibiliza 
 
 Este projeto foi construído com as seguintes tecnologias:
 
-| Ferramenta                  | Descrição                                                                                     |
-|:----------------------------|:----------------------------------------------------------------------------------------------|
-| **Java 21**                 | Linguagem de programação principal.                                                           |
-| **Quarkus**                 | Framework Java nativo para nuvem, otimizado para alta performance e baixo consumo de memória. |
-| **MySQL**                   | Banco de dados relacional para persistência dos dados.                                        |
+| Ferramenta                       | Descrição                                                                                     |
+|:---------------------------------|:----------------------------------------------------------------------------------------------|
+| **Java 21**                      | Linguagem de programação principal.                                                           |
+| **Quarkus**                      | Framework Java nativo para nuvem, otimizado para alta performance e baixo consumo de memória. |
+| **MySQL**                        | Banco de dados relacional para persistência dos dados.                                        |
 | **Caffeine (via Quarkus Cache)** | Biblioteca de cache de alta performance para otimização de consultas.                         |
-| **Docker & Docker Compose** | Ferramentas para criação de containers e orquestração do ambiente de desenvolvimento.         |
-| **RESTful API**             | Arquitetura para a comunicação entre cliente e servidor.                                      |
+| **JUnit 5**                      | Framework para a execução de testes automatizados.                                            |
+| **Docker & Docker Compose**      | Ferramentas para criação de containers e orquestração do ambiente de desenvolvimento.         |
+| **RESTful API**                  | Arquitetura para a comunicação entre cliente e servidor.                                      |
 
 ---
 
@@ -229,7 +230,7 @@ Retorna uma lista paginada de todas as simulações já realizadas.
       ]
     }
     ```
-
+-   **Nota Importante:** Para o campo `valorTotalPago`, foi definido que o seu valor representa a soma de todas as parcelas do financiamento SAC. No sistema SAC (Sistema de Amortização Constante), as parcelas diminuem com o tempo. A principal vantagem é que a amortização do saldo devedor é constante e mais rápida no início, resultando em um pagamento total de juros menor em comparação com o sistema Price.
 ### 3. Listar Volume de Simulações
 
 Retorna o volume de simulações agrupadas por produto e por dia.
