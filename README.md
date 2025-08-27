@@ -34,6 +34,17 @@ Este projeto foi construído com as seguintes tecnologias:
 
 ---
 
+## Performance e Escalabilidade
+
+Considerando que este serviço foi projetado para ser utilizado por um grande número de usuários simultaneamente, a performance é fundamental. Para evitar sobrecarga na infraestrutura, especialmente no banco de dados, foi implementada uma estratégia de cache para a consulta de produtos de financiamento.
+
+-   **Estratégia de Cache:** A lista de produtos, que é uma informação consultada com frequência e raramente alterada, é armazenada em cache na memória da aplicação por **60 minutos** utilizando a extensão `quarkus-cache` com Caffeine.
+-   **Redução de Latência:** Isso reduz drasticamente o número de chamadas ao banco de dados, diminuindo a latência do endpoint `POST /v1/simulacao`.
+-   **Atualização Manual:** Para garantir que o sistema possa refletir alterações nos produtos antes da expiração automática do cache, foi criado um endpoint administrativo (`POST /admin/produto/refresh`) que permite a invalidação forçada do cache.
+
+---
+
+
 ## Como Rodar o Projeto
 
 Siga os passos abaixo para executar o projeto em seu ambiente local.
@@ -349,6 +360,17 @@ Retorna a lista de produtos disponíveis para simulação.
       }
     ]
     ```
+---
+
+### 6. (Admin) Forçar Atualização do Cache de Produtos
+
+Invalida o cache de produtos, forçando a próxima consulta a buscar os dados mais recentes do banco. **Nota:** Teoricamente este endpoint deve ser protegido e acessível apenas por administradores, mas está fora do escopo do projeto.
+
+-   **Método:** `POST`
+-   **Endpoint:** `/admin/produto/refresh`
+-   **Body:** Nenhum.
+-   **Resposta (Sucesso - 200):** Retorna a mensagem de sucesso `Cache de produtos atualizado com sucesso`
+
 ---
 
  **Autor: Renan Lacerda**
