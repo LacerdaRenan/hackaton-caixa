@@ -24,7 +24,7 @@ public class TelemetriaDao {
                     AVG(t.duracao) AS tempoMedio,
                     MIN(t.duracao) AS tempoMinimo,
                     MAX(t.duracao) AS tempoMaximo,
-                    (SUM(CASE WHEN t.statusCodeResponse >= 200 AND t.statusCodeResponse < 300 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS percentualSucesso
+                    (SUM(CASE WHEN t.statusCodeResponse >= 200 AND t.statusCodeResponse < 300 THEN 1 ELSE 0 END) * 1.0 / COUNT(*)) AS percentualSucesso
                 FROM
                     Telemetria t
                 WHERE
