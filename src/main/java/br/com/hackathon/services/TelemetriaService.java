@@ -3,7 +3,7 @@ package br.com.hackathon.services;
 import br.com.hackathon.dao.TelemetriaDao;
 import br.com.hackathon.dto.telemetria.DadosTelemetriaDto;
 import br.com.hackathon.dto.telemetria.TelemetriaDto;
-import br.com.hackathon.model.h2.Telemetria;
+import br.com.hackathon.model.mysql.Telemetria;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-quarkus
+    environment:
+      MYSQL_DATABASE: dbhack
+      MYSQL_USER: rlac
+      MYSQL_PASSWORD: hackaixa
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - quarkus-net
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  quarkus-app:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    image: quarkus-app:1.0
+    container_name: quarkus-app
+    depends_on:
+      mysql:
+          condition: service_healthy
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mysql://mysql:3306/dbhack
+      QUARKUS_DATASOURCE_USERNAME: rlac
+      QUARKUS_DATASOURCE_PASSWORD: hackaixa
+    ports:
+      - "8080:8080"
+    networks:
+      - quarkus-net
+
+networks:
+  quarkus-net:
+    driver: bridge
+
+volumes:
+  mysql_data:

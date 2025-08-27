@@ -1,6 +1,6 @@
 package br.com.hackathon.dao;
 
-import br.com.hackathon.model.h2.Simulacao;
+import br.com.hackathon.model.mysql.Simulacao;
 import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -12,7 +12,7 @@ import java.util.List;
 @ApplicationScoped
 public class SimulacaoDao {
 
-    @PersistenceUnit("h2")
+    @PersistenceUnit("mysql")
     EntityManager em;
 
     public List<Simulacao> listarPaginadas(Short pagina, Integer tamanhoPagina) {

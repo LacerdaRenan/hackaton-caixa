@@ -9,7 +9,7 @@ import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.RespostaVolumeProdutoSimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.VolumeProdutoSimulacaoDto;
 import br.com.hackathon.exceptions.ProductNotFoundException;
-import br.com.hackathon.model.h2.Simulacao;
+import br.com.hackathon.model.mysql.Simulacao;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.component.QuarkusComponentTest;
 

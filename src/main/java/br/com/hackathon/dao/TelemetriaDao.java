@@ -1,7 +1,7 @@
 package br.com.hackathon.dao;
 
 import br.com.hackathon.dto.telemetria.DadosTelemetriaDto;
-import br.com.hackathon.model.h2.Telemetria;
+import br.com.hackathon.model.mysql.Telemetria;
 import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -13,7 +13,7 @@ import java.util.List;
 @ApplicationScoped
 public class TelemetriaDao {
 
-    @PersistenceUnit("h2")
+    @PersistenceUnit("mysql")
     EntityManager em;
 
     public List<DadosTelemetriaDto> buscarDadosTelemetriaData(LocalDate data) {

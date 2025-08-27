@@ -10,7 +10,7 @@ import br.com.hackathon.dto.simulacao.SimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.RespostaVolumeProdutoSimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.VolumeProdutoSimulacaoDto;
 import br.com.hackathon.enums.EnumTipoFinanciamento;
-import br.com.hackathon.model.h2.Simulacao;
+import br.com.hackathon.model.mysql.Simulacao;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

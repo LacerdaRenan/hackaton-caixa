@@ -1,4 +1,4 @@
-package br.com.hackathon.model.h2;
+package br.com.hackathon.model.mysql;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
