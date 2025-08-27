@@ -29,6 +29,7 @@ Este projeto foi construído com as seguintes tecnologias:
 | **Java 21**                 | Linguagem de programação principal. |
 | **Quarkus**                 | Framework Java nativo para nuvem, otimizado para alta performance e baixo consumo de memória. |
 | **MySQL**                   | Banco de dados relacional para persistência dos dados. |
+| **Caffeine (via Quarkus Cache)** | Biblioteca de cache de alta performance para otimização de consultas. |
 | **Docker & Docker Compose** | Ferramentas para criação de contêineres e orquestração do ambiente de desenvolvimento. |
 | **RESTful API**             | Arquitetura para a comunicação entre cliente e servidor. |
 
@@ -44,6 +45,14 @@ Considerando que este serviço foi projetado para ser utilizado por um grande n�
 
 ---
 
+## Qualidade e Testes
+
+A qualidade do código e a confiabilidade do serviço são prioridades neste projeto. Para garantir que a aplicação se comporte como esperado e que a lógica de negócio esteja correta, foram implementados testes automatizados utilizando **JUnit 5**.
+
+-   **Testes Unitários:** Foram criados para validar o comportamento de componentes críticos, como os serviços de cálculo de simulação e as regras de negócio, de forma isolada.
+-   **Testes Parametrizados:** Para garantir a robustez dos cálculos de financiamento (SAC e Price), utilizamos testes parametrizados. Essa abordagem nos permitiu testar uma vasta gama de cenários com diferentes entradas (valores, prazos, taxas) de forma eficiente, assegurando a precisão dos resultados.
+
+---
 
 ## Como Rodar o Projeto
 
@@ -77,6 +86,16 @@ Siga os passos abaixo para executar o projeto em seu ambiente local.
 
 - Ao finalizar o build, a API estará disponível em `http://localhost:8080/api`.
 - Também está disponível o swagger em `http://localhost:8080/q/swagger-ui`
+
+---
+
+### Parando o Serviço
+
+Para parar e remover todos os containers relacionados ao projeto, execute o seguinte comando no mesmo diretório:
+
+```bash
+docker-compose down
+```
 
 ---
 

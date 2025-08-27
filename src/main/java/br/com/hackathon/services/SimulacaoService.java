@@ -50,6 +50,8 @@ public class SimulacaoService {
 
         Simulacao simulacao = salvarSimulacao(criarSimulacaoDto, simulacaoSac, produtoDto);
 
+        log.info("simulacao id {} finalizada", simulacao.getIdSimulacao());
+
         return RespostaSimulacaoDto.builder()
                 .idSimulacao(simulacao.getIdSimulacao())
                 .codigoProduto(produtoDto.getCodigoProduto())
@@ -145,6 +147,8 @@ public class SimulacaoService {
 
     public PaginaPayload<SimulacaoRegistroDto> listarSimulacoesPaginadas(Short pagina, Integer tamanhoPagina) {
 
+        log.info("listar simulacoes pagina {} tamanho pagina {}", pagina, tamanhoPagina);
+
         List<SimulacaoRegistroDto> simulacoesPaginadas = simulacaoDao.listarPaginadas(pagina, tamanhoPagina);
 
         Long totalRegistros = simulacaoDao.contarTotalRegistros();
@@ -160,6 +164,8 @@ public class SimulacaoService {
     }
 
     public RespostaVolumeProdutoSimulacaoDto calcularVolumeSimuladoData(LocalDate data) {
+
+        log.info("inicia calculo de volume simulacao por produto e dia");
 
         List<Simulacao> simulacoesProdutoPorDia = simulacaoDao.listarPorData(data);
 

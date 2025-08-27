@@ -1,0 +1,239 @@
+type: collection.insomnia.rest/5.0
+name: Scratch Pad
+meta:
+  id: wrk_scratchpad
+  created: 1716082928243
+  modified: 1716082928243
+  description: ""
+collection:
+  - name: Hackaton
+    meta:
+      id: fld_a790894bda5f461ebdea3fb2e0901a14
+      created: 1756259560331
+      modified: 1756316050162
+      sortKey: -1756259560331
+      description: ""
+    children:
+      - name: Produto
+        meta:
+          id: fld_213653417a7442b1a3f80d13b541be10
+          created: 1756259722046
+          modified: 1756259722046
+          sortKey: -1756259722046
+          description: ""
+        children:
+          - url: http://localhost:8080/api/v1/produto
+            name: Listar Produtos
+            meta:
+              id: req_bf7e3f166cef4dabb6088e5fabbc360e
+              created: 1756259566527
+              modified: 1756305031272
+              isPrivate: false
+              description: ""
+              sortKey: -1756259724407
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.5.0
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Simulação
+        meta:
+          id: fld_791f2c172f844e2d9941337b398a89e7
+          created: 1756259736682
+          modified: 1756259736682
+          sortKey: -1756259736682
+          description: ""
+        children:
+          - url: http://localhost:8080/api/v1/simulacao
+            name: Listar Simulações
+            meta:
+              id: req_e9b48cd0af794ce29606768014e3659e
+              created: 1756259654439
+              modified: 1756323925170
+              isPrivate: false
+              description: ""
+              sortKey: -1756259743111
+            method: GET
+            parameters:
+              - id: pair_73edb61b7f174a0a8be32fd63c12cded
+                name: pagina
+                value: "1"
+                description: ""
+                disabled: false
+              - id: pair_e1e2ff140a9443fead7ca66eabfcc88b
+                name: tamanhoPagina
+                value: "10"
+                description: ""
+                disabled: false
+            headers:
+              - name: User-Agent
+                value: insomnia/11.5.0
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/simulacao
+            name: Criar Simulacao
+            meta:
+              id: req_d75db8ddb09e4e53a33227a72707d38a
+              created: 1756259750828
+              modified: 1756323530859
+              isPrivate: false
+              description: ""
+              sortKey: -1756259750828
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                			"valorDesejado": 1000.00,
+                			"prazo": 2
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.5.0
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/simulacao/2025-08-27
+            name: Listar Volume
+            meta:
+              id: req_b7cf8399ba3a4a84aa4b6947bfefe6f3
+              created: 1756259839334
+              modified: 1756298143764
+              isPrivate: false
+              description: ""
+              sortKey: -1756259839334
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.5.0
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Telemetria
+        meta:
+          id: fld_528c5b42ad994e979a52ce2f0afdeb9f
+          created: 1756278578534
+          modified: 1756278578534
+          sortKey: -1756278578534
+          description: ""
+        children:
+          - url: http://localhost:8080/api/v1/telemetria/2025-08-27
+            name: Dados Telemetria
+            meta:
+              id: req_d62e758da8d44627b8af0cafe262f5a7
+              created: 1756278582416
+              modified: 1756298398774
+              isPrivate: false
+              description: ""
+              sortKey: -1756278582416
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.5.0
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Admin
+        meta:
+          id: fld_9c876e7c596e437d9e9ea5b7e2324a0f
+          created: 1756304470192
+          modified: 1756304470192
+          sortKey: -1756304470192
+          description: ""
+        children:
+          - url: http://localhost:8080/api/v1/admin/produto/refresh
+            name: Forçar Atualização Cache
+            meta:
+              id: req_003e320bf5f0489db47b4fc2229f840b
+              created: 1756304472974
+              modified: 1756304531314
+              isPrivate: false
+              description: ""
+              sortKey: -1756304472974
+            method: POST
+            headers:
+              - name: User-Agent
+                value: insomnia/11.5.0
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1716082942712
+    modified: 1716083484140
+  cookies:
+    - key: AEC
+      value: AQTF6Hz6JQazbPILXJcRReqOHY8UCLqYD6SDn7F-VdKHPqjsv4P8cY-SE0s
+      domain: google.com
+      path: /
+      secure: true
+      httpOnly: true
+      hostOnly: false
+      creation: 2024-05-19T01:43:17.403Z
+      lastAccessed: 2024-05-19T01:43:17.403Z
+      sameSite: lax
+      id: 5fd510de-e1c2-4d47-89c9-ff2c456ab200
+    - key: NID
+      value: 514=LWS8ypb9qbQ6nURv4EnjpwlJlHEz6hzipUHQbCa4ODit6bs2mBiDn12V29EUFkXUTD2U8rLOhtYJ4F3S-VGPOXPRLskrciVA4Iix9ywXzYrgh_St5C9S6Q2U9saXUpL0WxS4-n9RphMyjC1zJD4kjx65UuzNAf0RppZFLZ9rbQ0
+      domain: google.com
+      path: /
+      httpOnly: true
+      hostOnly: false
+      creation: 2024-05-19T01:43:17.406Z
+      lastAccessed: 2024-05-19T01:43:17.406Z
+      id: 485e1378-95e7-47be-aacd-2c70f0ca04fb
+    - key: d69a9d817c75a19bfae8e9244e022ba9
+      value: 0a7rq10m602hb03t0rcqrq8jq4
+      domain: www.unb.br
+      path: /
+      httpOnly: true
+      hostOnly: true
+      creation: 2024-05-19T01:51:24.140Z
+      lastAccessed: 2024-05-19T01:51:24.140Z
+      id: 700515c7-8ba8-48bb-ba29-c961d4a01952
+environments:
+  name: Base Environment
+  meta:
+    id: env_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1716082942712
+    modified: 1739136347078
+    isPrivate: false
+  data:
+    local_url: http://localhost:8080
