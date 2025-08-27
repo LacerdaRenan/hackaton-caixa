@@ -1,66 +1,353 @@
-# simulador-credito-hackathon
+# Simulador de Crédito API
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+---
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## Sobre o Projeto
 
-## Running the application in dev mode
+O **Simulador de Crédito API** é uma solução desenvolvida para o Hackathon 2025 da Caixa Econômica Federal, com o objetivo de fornecer um serviço robusto e escalável para simulações de financiamento, e, com  isso, disponibilizar para todos os brasileiros a possibilidade de simulação de empréstimo. A API permite calcular financiamentos pelos sistemas **SAC (Sistema de Amortização Constante)** e **Price**, além de oferecer endpoints para monitoramento e análise de dados.
 
-You can run your application in dev mode that enables live coding using:
+Este projeto foi construído utilizando **Quarkus**, pois uma arquitetura de microsserviços moderna, garantindo alta performance, resiliência e observabilidade.
 
-```shell script
-./mvnw quarkus:dev
-```
+---
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+## Funcionalidades Principais
 
-## Packaging and running the application
+-   **Simulação de Financiamento:** Crie simulações detalhadas para diferentes produtos de crédito.
+-   **Consulta de Simulações:** Acesse o histórico completo de todas as simulações realizadas.
+-   **Análise de Volume:** Monitore o volume de simulações agrupadas por produto e por dia.
+-   **Monitoramento e Telemetria:** Obtenha dados de telemetria (como tempo de resposta e status) para cada serviço.
+-   **Gestão de Produtos:** Liste os produtos de financiamento disponíveis para simulação.
 
-The application can be packaged using:
+---
 
-```shell script
-./mvnw package
-```
+## Tecnologias Utilizadas
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+Este projeto foi construído com as seguintes tecnologias:
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+| Ferramenta                  | Descrição |
+|:----------------------------| :--- |
+| **Java 21**                 | Linguagem de programação principal. |
+| **Quarkus**                 | Framework Java nativo para nuvem, otimizado para alta performance e baixo consumo de memória. |
+| **MySQL**                   | Banco de dados relacional para persistência dos dados. |
+| **Docker & Docker Compose** | Ferramentas para criação de contêineres e orquestração do ambiente de desenvolvimento. |
+| **RESTful API**             | Arquitetura para a comunicação entre cliente e servidor. |
 
-If you want to build an _über-jar_, execute the following command:
+---
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+## Como Rodar o Projeto
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+Siga os passos abaixo para executar o projeto em seu ambiente local.
 
-## Creating a native executable
+### Pré-requisitos
 
-You can create a native executable using:
+-   [Docker](https://www.docker.com/get-started) instalado
+-   [Docker Compose](https://docs.docker.com/compose/install/) instalado
+-   Um cliente de API, como [Postman](https://www.postman.com/) ou [Insomnia](https://insomnia.rest/) se desejar, mas o serviço possui swagger-ui.
 
-```shell script
-./mvnw package -Dnative
-```
+### Passos para Execução
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+1.  **Clone o repositório:**
+    ```bash
+    git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
+    cd seu-repositorio
+    ```
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+2.  **Suba os contêineres com Docker Compose:**
+    O comando a seguir irá construir as imagens e iniciar a aplicação Quarkus e o banco de dados MySQL.
 
-You can then execute your native executable with: `./target/simulador-credito-hackathon-1.0.0-SNAPSHOT-runner`
+    ```bash
+    docker compose up --build
+    ```
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+3.  **Aguarde a inicialização:**
+    Aguarde até que os logs indiquem que a aplicação Quarkus foi iniciada com sucesso. Geralmente, você verá uma mensagem como: `Listening on: http://0.0.0.0:8080`.
 
-## Related Guides
+- Ao finalizar o build, a API estará disponível em `http://localhost:8080/api`.
+- Também está disponível o swagger em `http://localhost:8080/q/swagger-ui`
 
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
+---
 
-## Provided Code
+## Documentação da API
 
-### REST
+A seguir estão detalhados os endpoints disponíveis na aplicação.
 
-Easily start your REST Web Services
+**URL Base:** `http://localhost:8080/api`
 
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+### 1. Criar Simulação
+
+Cria uma nova simulação de financiamento.
+
+-   **Método:** `POST`
+-   **Endpoint:** `/v1/simulacao`
+-   **Body (Exemplo):**
+    ```json
+    {
+      "valorDesejado": 1000.00,
+      "prazo": 3
+    }
+    ```
+-   **Resposta (Sucesso - 201 Created):**
+    ```json
+    {
+      "idSimulacao": 25,
+      "codigoProduto": 1,
+      "descricaoProduto": "Produto 1",
+      "taxaJuros": 0.0179,
+      "resultadoSimulacao": [
+        {
+          "tipo": "SAC",
+          "parcelas": [
+            {
+              "numero": 1,
+              "valorAmortizacao": 500.00,
+              "valorJuros": 17.90,
+              "valorPrestacao": 517.90
+            },
+            {
+              "numero": 2,
+              "valorAmortizacao": 500.00,
+              "valorJuros": 8.95,
+              "valorPrestacao": 508.95
+            }
+          ]
+        },
+        {
+          "tipo": "PRICE",
+          "parcelas": [
+            {
+              "numero": 1,
+              "valorAmortizacao": 495.56,
+              "valorJuros": 17.90,
+              "valorPrestacao": 513.46
+            },
+            {
+              "numero": 2,
+              "valorAmortizacao": 504.44,
+              "valorJuros": 9.03,
+              "valorPrestacao": 513.46
+            }
+          ]
+        }
+      ]
+    }
+
+    ```
+
+
+
+
+### 2. Listar Todas as Simulações
+
+Retorna uma lista paginada de todas as simulações já realizadas.
+
+-   **Método:** `GET`
+-   **Endpoint:** `/v1/simulacao?pagina=2&tamanhoPagina=7`
+-   **Parâmetros de Query:**
+    -   `pagina` (opcional): Número da página (Default 1).
+    -   `tamanhoPagina` (opcional): Quantidade de itens por página (Default 5).
+-   **Resposta (Sucesso - 200 OK):**
+    ```json
+    {
+      "pagina": 2,
+      "qtdRegistros": 25,
+      "qtdRegistrosPagina": 7,
+      "registros": [
+        {
+          "idSimulacao": 8,
+          "valorDesejado": 50000.00,
+          "prazo": 36,
+          "valorTotalParcelas": 66187.50
+        },
+        {
+          "idSimulacao": 9,
+          "valorDesejado": 10000.01,
+          "prazo": 25,
+          "valorTotalParcelas": 12275.00
+        },
+        {
+          "idSimulacao": 10,
+          "valorDesejado": 100000.00,
+          "prazo": 48,
+          "valorTotalParcelas": 142874.96
+        },
+        {
+          "idSimulacao": 11,
+          "valorDesejado": 500000.00,
+          "prazo": 72,
+          "valorTotalParcelas": 832150.00
+        },
+        {
+          "idSimulacao": 12,
+          "valorDesejado": 500000.00,
+          "prazo": 72,
+          "valorTotalParcelas": 832150.00
+        },
+        {
+          "idSimulacao": 13,
+          "valorDesejado": 500000.00,
+          "prazo": 72,
+          "valorTotalParcelas": 832150.00
+        },
+        {
+          "idSimulacao": 14,
+          "valorDesejado": 100000.01,
+          "prazo": 49,
+          "valorTotalParcelas": 145500.04
+        }
+      ]
+    }
+    ```
+
+### 3. Listar Volume de Simulações
+
+Retorna o volume de simulações agrupadas por produto e por dia.
+
+-   **Método:** `GET`
+-   **Endpoint:** `v1/simulacao/AAAA-MM-dd`
+-   **Resposta (Sucesso - 200 OK):**
+    ```json
+    {
+      "dataReferencia": "2025-08-27",
+      "simulacoes": [
+        {
+          "codigoProduto": 1,
+          "descricaoProduto": "Produto 1",
+          "taxaMediaJuro": 0.0179,
+          "valorMedioPrestacao": 422.13,
+          "valorTotalDesejado": 20200.00,
+          "valorTotalCredito": 23604.62
+        },
+        {
+          "codigoProduto": 2,
+          "descricaoProduto": "Produto 2",
+          "taxaMediaJuro": 0.0175,
+          "valorMedioPrestacao": 1932.78,
+          "valorTotalDesejado": 180000.01,
+          "valorTotalCredito": 247812.46
+        },
+        {
+          "codigoProduto": 3,
+          "descricaoProduto": "Produto 3",
+          "taxaMediaJuro": 0.0182,
+          "valorMedioPrestacao": 15937.91,
+          "valorTotalDesejado": 3900000.02,
+          "valorTotalCredito": 6863870.08
+        },
+        {
+          "codigoProduto": 4,
+          "descricaoProduto": "Produto 4",
+          "taxaMediaJuro": 0.0151,
+          "valorMedioPrestacao": 21425.96,
+          "valorTotalDesejado": 6000000.02,
+          "valorTotalCredito": 11134000.04
+        }
+      ]
+    }
+    ```
+
+### 4. Listar Dados de Telemetria
+
+Retorna dados de telemetria por data, como tempo médio de resposta e contagem de requisições por endpoint.
+
+-   **Método:** `GET`
+-   **Endpoint:** `v1/telemetria/AAAA-MM-dd`
+-   **Resposta (Sucesso - 200 OK):**
+    ```json
+    {
+      "dataReferencia": "2025-08-27",
+      "listaEndpoints": [
+        {
+          "nomeApi": "GET /api/v1/produto",
+          "qtdRequisicoes": 42,
+          "tempoMedio": 9.381,
+          "tempoMinimo": 0,
+          "tempoMaximo": 250,
+          "percentualSucesso": 1.0
+        },
+        {
+          "nomeApi": "POST /api/v1/admin",
+          "qtdRequisicoes": 4,
+          "tempoMedio": 0.5,
+          "tempoMinimo": 0,
+          "tempoMaximo": 2,
+          "percentualSucesso": 1.0
+        },
+        {
+          "nomeApi": "GET /api/v1/telemetria",
+          "qtdRequisicoes": 14,
+          "tempoMedio": 22.6429,
+          "tempoMinimo": 1,
+          "tempoMaximo": 293,
+          "percentualSucesso": 1.0
+        },
+        {
+          "nomeApi": "GET /api/v1/simulacao",
+          "qtdRequisicoes": 3,
+          "tempoMedio": 5.0,
+          "tempoMinimo": 3,
+          "tempoMaximo": 8,
+          "percentualSucesso": 1.0
+        },
+        {
+          "nomeApi": "POST /api/v1/simulacao",
+          "qtdRequisicoes": 39,
+          "tempoMedio": 7.5385,
+          "tempoMinimo": 0,
+          "tempoMaximo": 69,
+          "percentualSucesso": 0.51282
+        }
+      ]
+    }
+    ```
+
+### 5. Listar Produtos de Financiamento
+
+Retorna a lista de produtos disponíveis para simulação.
+
+-   **Método:** `GET`
+-   **Endpoint:** `v1/produto`
+-   **Resposta (Sucesso - 200 OK):**
+    ```json
+    [
+      {
+        "codigoProduto": 1,
+        "nomeProduto": "Produto 1",
+        "taxaJuros": 0.017900000,
+        "numeroMinimoMeses": 0,
+        "numeroMaximoMeses": 24,
+        "valorMinimo": 200.00,
+        "valorMaximo": 10000.00
+      },
+      {
+        "codigoProduto": 2,
+        "nomeProduto": "Produto 2",
+        "taxaJuros": 0.017500000,
+        "numeroMinimoMeses": 25,
+        "numeroMaximoMeses": 48,
+        "valorMinimo": 10000.01,
+        "valorMaximo": 100000.00
+      },
+      {
+        "codigoProduto": 3,
+        "nomeProduto": "Produto 3",
+        "taxaJuros": 0.018200000,
+        "numeroMinimoMeses": 49,
+        "numeroMaximoMeses": 96,
+        "valorMinimo": 100000.01,
+        "valorMaximo": 1000000.00
+      },
+      {
+        "codigoProduto": 4,
+        "nomeProduto": "Produto 4",
+        "taxaJuros": 0.015100000,
+        "numeroMinimoMeses": 97,
+        "numeroMaximoMeses": null,
+        "valorMinimo": 1000000.01,
+        "valorMaximo": null
+      }
+    ]
+    ```
+---
+
+ **Autor: Renan Lacerda**
+
