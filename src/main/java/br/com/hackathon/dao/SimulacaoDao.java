@@ -1,5 +1,6 @@
 package br.com.hackathon.dao;
 
+import br.com.hackathon.dto.simulacao.SimulacaoRegistroDto;
 import br.com.hackathon.model.mysql.Simulacao;
 import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,8 +16,21 @@ public class SimulacaoDao {
     @PersistenceUnit("mysql")
     EntityManager em;
 
-    public List<Simulacao> listarPaginadas(Short pagina, Integer tamanhoPagina) {
-        TypedQuery<Simulacao> query = em.createQuery("FROM Simulacao ORDER BY idSimulacao", Simulacao.class);
+    public List<SimulacaoRegistroDto> listarPaginadas(Short pagina, Integer tamanhoPagina) {
+
+        String sql = """
+                SELECT
+                    s.idSimulacao,
+                    s.valorDesejado,
+                    s.prazo,
+                    s.valorTotalParcelas
+                FROM
+                    Simulacao s
+                ORDER BY
+                    s.idSimulacao
+                """;
+
+        TypedQuery<SimulacaoRegistroDto> query = em.createQuery(sql, SimulacaoRegistroDto.class);
         query.setFirstResult((pagina-1)*tamanhoPagina);
         query.setMaxResults(tamanhoPagina);
 

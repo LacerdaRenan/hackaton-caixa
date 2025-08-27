@@ -3,10 +3,7 @@ package br.com.hackathon.services;
 import br.com.hackathon.api.payload.PaginaPayload;
 import br.com.hackathon.dao.SimulacaoDao;
 import br.com.hackathon.dto.*;
-import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
-import br.com.hackathon.dto.simulacao.ParcelaDto;
-import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
-import br.com.hackathon.dto.simulacao.SimulacaoDto;
+import br.com.hackathon.dto.simulacao.*;
 import br.com.hackathon.dto.volume_produto_simulacao.RespostaVolumeProdutoSimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.VolumeProdutoSimulacaoDto;
 import br.com.hackathon.enums.EnumTipoFinanciamento;
@@ -146,12 +143,13 @@ public class SimulacaoService {
         return BigDecimal.ONE.add(taxaJuros).pow(parcelaAtual-1).multiply(amortizacaoPrimeiraParcela);
     }
 
-    public PaginaPayload<Simulacao> listarSimulacoesPaginadas(Short pagina, Integer tamanhoPagina) {
+    public PaginaPayload<SimulacaoRegistroDto> listarSimulacoesPaginadas(Short pagina, Integer tamanhoPagina) {
 
-        List<Simulacao> simulacoesPaginadas = simulacaoDao.listarPaginadas(pagina, tamanhoPagina);
+        List<SimulacaoRegistroDto> simulacoesPaginadas = simulacaoDao.listarPaginadas(pagina, tamanhoPagina);
+
         Long totalRegistros = simulacaoDao.contarTotalRegistros();
 
-        PaginaPayload<Simulacao> paginaConsulta = new PaginaPayload<>();
+        PaginaPayload<SimulacaoRegistroDto> paginaConsulta = new PaginaPayload<>();
 
         paginaConsulta.setPagina(pagina);
         paginaConsulta.setQtdRegistros(totalRegistros);

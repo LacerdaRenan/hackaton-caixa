@@ -1,21 +1,17 @@
 package br.com.hackathon.dto.simulacao;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
+@AllArgsConstructor
 @Builder
-public class CriarSimulacaoDto {
-
-    @NotNull
-    @Positive
+public class SimulacaoRegistroDto {
+    private Long idSimulacao;
     private BigDecimal valorDesejado;
-
-    @NotNull
-    @Positive
     private Short prazo;
+    private BigDecimal valorTotalParcelas;
 }

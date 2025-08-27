@@ -6,6 +6,7 @@ import br.com.hackathon.dao.SimulacaoDao;
 import br.com.hackathon.dto.ProdutoDto;
 import br.com.hackathon.dto.simulacao.CriarSimulacaoDto;
 import br.com.hackathon.dto.simulacao.RespostaSimulacaoDto;
+import br.com.hackathon.dto.simulacao.SimulacaoRegistroDto;
 import br.com.hackathon.dto.volume_produto_simulacao.RespostaVolumeProdutoSimulacaoDto;
 import br.com.hackathon.dto.volume_produto_simulacao.VolumeProdutoSimulacaoDto;
 import br.com.hackathon.exceptions.ProductNotFoundException;
@@ -111,7 +112,7 @@ class SimulacaoServiceTest {
         Integer tamanhoPagina = 10;
         Long totalRegistros = 1L;
 
-        List<Simulacao> registros = List.of(Simulacao.builder().build());
+        List<SimulacaoRegistroDto> registros = List.of(SimulacaoRegistroDto.builder().build());
 
         Mockito.when(simulacaoDao.listarPaginadas(pagina, tamanhoPagina))
                 .thenReturn(registros);
@@ -119,7 +120,7 @@ class SimulacaoServiceTest {
         Mockito.when(simulacaoDao.contarTotalRegistros())
                 .thenReturn(totalRegistros);
 
-        PaginaPayload<Simulacao> paginaPayload = simulacaoService.listarSimulacoesPaginadas(pagina, tamanhoPagina);
+        PaginaPayload<SimulacaoRegistroDto> paginaPayload = simulacaoService.listarSimulacoesPaginadas(pagina, tamanhoPagina);
 
         Mockito.verify(simulacaoDao, Mockito.times(1))
                 .listarPaginadas(pagina, tamanhoPagina);
