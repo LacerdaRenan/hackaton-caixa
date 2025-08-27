@@ -24,14 +24,14 @@ Este projeto foi construído utilizando **Quarkus**, pois o mesmo disponibiliza 
 
 Este projeto foi construído com as seguintes tecnologias:
 
-| Ferramenta                  | Descrição |
-|:----------------------------| :--- |
-| **Java 21**                 | Linguagem de programação principal. |
+| Ferramenta                  | Descrição                                                                                     |
+|:----------------------------|:----------------------------------------------------------------------------------------------|
+| **Java 21**                 | Linguagem de programação principal.                                                           |
 | **Quarkus**                 | Framework Java nativo para nuvem, otimizado para alta performance e baixo consumo de memória. |
-| **MySQL**                   | Banco de dados relacional para persistência dos dados. |
-| **Caffeine (via Quarkus Cache)** | Biblioteca de cache de alta performance para otimização de consultas. |
-| **Docker & Docker Compose** | Ferramentas para criação de contêineres e orquestração do ambiente de desenvolvimento. |
-| **RESTful API**             | Arquitetura para a comunicação entre cliente e servidor. |
+| **MySQL**                   | Banco de dados relacional para persistência dos dados.                                        |
+| **Caffeine (via Quarkus Cache)** | Biblioteca de cache de alta performance para otimização de consultas.                         |
+| **Docker & Docker Compose** | Ferramentas para criação de containers e orquestração do ambiente de desenvolvimento.         |
+| **RESTful API**             | Arquitetura para a comunicação entre cliente e servidor.                                      |
 
 ---
 
@@ -75,7 +75,7 @@ Siga os passos abaixo para executar o projeto em seu ambiente local.
     cd caminho/para/projeto
     ```
 
-3.  **Suba os contêineres com Docker Compose:**
+3.  **Suba os containers com Docker Compose:**
     Ao encontrar o arquivo docker-compose.yml, execute o comando a seguir no terminal. Ele irá construir as imagens e iniciar a aplicação Quarkus junto com o banco de dados MySQL.
     ```bash
     docker compose up --build
