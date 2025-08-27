@@ -11,7 +11,7 @@ import br.com.hackathon.dto.volume_produto_simulacao.VolumeProdutoSimulacaoDto;
 import br.com.hackathon.exceptions.ProductNotFoundException;
 import br.com.hackathon.model.h2.Simulacao;
 import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.component.QuarkusComponentTest;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
-@QuarkusTest
+@QuarkusComponentTest
 class SimulacaoServiceTest {
 
     @Inject
